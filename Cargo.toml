@@ -1,0 +1,10 @@
+[package]
+
+name = "libz-sys"
+version = "0.0.1"
+authors = ["Alex Crichton <alex@alexcrichton.com>"]
+links = "z"
+build = "src/build.rs"
+
+[build-dependencies.pkg-config]
+git = "https://github.com/alexcrichton/pkg-config-rs"
