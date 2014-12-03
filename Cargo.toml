@@ -11,5 +11,6 @@ description = """
 Bindings to the system libz library (also known as zlib).
 """
 
-[build-dependencies]
-pkg-config = "0.1.0"
+[build-dependencies.pkg-config]
+git = "https://github.com/alexcrichton/pkg-config-rs"
+version = "0.1.0"
