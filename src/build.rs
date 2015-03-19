@@ -6,5 +6,5 @@ fn main() {
         Err(..) => {}
     }
 
-    println!("cargo:rustc-flags=-l z");
+    println!("cargo:rustc-link-lib=z");
 }
