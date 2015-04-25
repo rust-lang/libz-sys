@@ -11,5 +11,8 @@ description = """
 Bindings to the system libz library (also known as zlib).
 """
 
+[dependencies]
+libc = "*"
+
 [build-dependencies]
 pkg-config = "0.3"
