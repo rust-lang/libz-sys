@@ -1,8 +1,10 @@
 extern crate pkg_config;
 
-use std::ffi::OsString;
-use std::process::Command;
 use std::env;
+use std::ffi::OsString;
+use std::fs;
+use std::path::PathBuf;
+use std::process::Command;
 
 fn main() {
     if pkg_config::find_library("zlib").is_ok() {
@@ -20,20 +22,34 @@ fn main() {
 }
 
 fn build_msvc_zlib() {
-    let src = env::current_dir().unwrap();
-    let dst = env::var_os("OUT_DIR").unwrap();
+    let src = env::current_dir().unwrap().join("src/zlib-1.2.8");
+    let dst = PathBuf::from(env::var_os("OUT_DIR").unwrap());
+
+    fs::create_dir(dst.join("lib")).unwrap();
+    fs::create_dir(dst.join("include")).unwrap();
 
     let mut top = OsString::from("TOP=");
     top.push(&src);
-    top.push("/src/zlib-1.2.8");
     run(Command::new("nmake")
-                .current_dir(&dst)
+                .current_dir(dst.join("lib"))
                 .arg("/f")
-                .arg(src.join("src/zlib-1.2.8/win32/Makefile.msc"))
+                .arg(src.join("win32/Makefile.msc"))
                 .arg(top)
                 .arg("zlib.lib"));
+
+    for file in fs::read_dir(&src).unwrap() {
+        let file = file.unwrap().path();
+        if let Some(s) = file.file_name().and_then(|s| s.to_str()) {
+            if s.ends_with(".h") {
+                fs::copy(&file, dst.join("include").join(s)).unwrap();
+            }
+        }
+    }
+
     println!("cargo:rustc-link-lib=zlib");
-    println!("cargo:rustc-link-search={}", dst.to_string_lossy());
+    println!("cargo:rustc-link-search={}/lib", dst.to_string_lossy());
+    println!("cargo:root={}", dst.to_string_lossy());
+    println!("cargo:include={}/include", dst.to_string_lossy());
 }
 
 fn run(cmd: &mut Command) {
