@@ -6,6 +6,13 @@ use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
 
+macro_rules! t {
+    ($e:expr) => (match $e {
+        Ok(n) => n,
+        Err(e) => panic!("\n{} failed with {}\n", stringify!($e), e),
+    })
+}
+
 fn main() {
     if pkg_config::find_library("zlib").is_ok() {
         return
@@ -22,11 +29,11 @@ fn main() {
 }
 
 fn build_msvc_zlib() {
-    let src = env::current_dir().unwrap().join("src/zlib-1.2.8");
+    let src = t!(env::current_dir()).join("src/zlib-1.2.8");
     let dst = PathBuf::from(env::var_os("OUT_DIR").unwrap());
 
-    fs::create_dir(dst.join("lib")).unwrap();
-    fs::create_dir(dst.join("include")).unwrap();
+    t!(fs::create_dir_all(dst.join("lib")));
+    t!(fs::create_dir_all(dst.join("include")));
 
     let mut top = OsString::from("TOP=");
     top.push(&src);
@@ -37,11 +44,11 @@ fn build_msvc_zlib() {
                 .arg(top)
                 .arg("zlib.lib"));
 
-    for file in fs::read_dir(&src).unwrap() {
-        let file = file.unwrap().path();
+    for file in t!(fs::read_dir(&src)) {
+        let file = t!(file).path();
         if let Some(s) = file.file_name().and_then(|s| s.to_str()) {
             if s.ends_with(".h") {
-                fs::copy(&file, dst.join("include").join(s)).unwrap();
+                t!(fs::copy(&file, dst.join("include").join(s)));
             }
         }
     }
