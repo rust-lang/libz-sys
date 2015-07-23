@@ -1,3 +1,4 @@
+#![doc(html_root_url = "http://alexcrichton.com/libz-sys")]
 #![allow(non_camel_case_types)]
 
 extern crate libc;

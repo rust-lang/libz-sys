@@ -7,6 +7,7 @@ links = "z"
 build = "build.rs"
 license = "MIT/Apache-2.0"
 repository = "https://github.com/alexcrichton/libz-sys"
+documentation = "http://alexcrichton.com/libz-sys"
 description = """
 Bindings to the system libz library (also known as zlib).
 """
