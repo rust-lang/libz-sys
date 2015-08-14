@@ -56,7 +56,7 @@ fn build_msvc_zlib(target: &str) {
         }
     }
 
-    println!("cargo:rustc-link-lib=zlib");
+    println!("cargo:rustc-link-lib=static=zlib");
     println!("cargo:rustc-link-search={}/lib", dst.to_string_lossy());
     println!("cargo:root={}", dst.to_string_lossy());
     println!("cargo:include={}/include", dst.to_string_lossy());
