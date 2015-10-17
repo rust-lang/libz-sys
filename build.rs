@@ -61,12 +61,13 @@ fn build_zlib() {
 fn cp_r(dir: &Path, dst: &Path) {
     for entry in t!(fs::read_dir(dir)) {
         let entry = t!(entry);
-        let dst = dst.join(entry.file_name());
-        if t!(entry.file_type()).is_file() {
-            t!(fs::copy(entry.path(), dst));
+        let path = entry.path();
+        let dst = dst.join(path.file_name().unwrap());
+        if t!(fs::metadata(&path)).is_file() {
+            t!(fs::copy(path, dst));
         } else {
             t!(fs::create_dir_all(&dst));
-            cp_r(&entry.path(), &dst);
+            cp_r(&path, &dst);
         }
     }
 }
