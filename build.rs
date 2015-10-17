@@ -4,7 +4,7 @@ extern crate gcc;
 use std::env;
 use std::ffi::OsString;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 macro_rules! t {
@@ -24,8 +24,50 @@ fn main() {
     let target = env::var("TARGET").unwrap();
     if target.contains("msvc") {
         build_msvc_zlib(&target);
+    } else if target.contains("musl") {
+        build_zlib();
     } else {
         println!("cargo:rustc-link-lib=z");
+    }
+}
+
+fn build_zlib() {
+    let src = env::current_dir().unwrap().join("src/zlib-1.2.8");
+    let dst = PathBuf::from(env::var_os("OUT_DIR").unwrap());
+    let build = dst.join("build");
+    t!(fs::create_dir_all(&build));
+    cp_r(&src, &build);
+    let compiler = gcc::Config::new().get_compiler();
+    let mut cflags = OsString::new();
+    for arg in compiler.args() {
+        cflags.push(arg);
+        cflags.push(" ");
+    }
+    run(Command::new("./configure")
+                .current_dir(&build)
+                .arg(format!("--prefix={}", dst.display()))
+                .env("CC", compiler.path())
+                .env("CFLAGS", cflags));
+    run(Command::new("make")
+                .current_dir(&build)
+                .arg("install"));
+
+    println!("cargo:rustc-link-lib=static=z");
+    println!("cargo:rustc-link-search={}/lib", dst.to_string_lossy());
+    println!("cargo:root={}", dst.to_string_lossy());
+    println!("cargo:include={}/include", dst.to_string_lossy());
+}
+
+fn cp_r(dir: &Path, dst: &Path) {
+    for entry in t!(fs::read_dir(dir)) {
+        let entry = t!(entry);
+        let dst = dst.join(entry.file_name());
+        if t!(entry.file_type()).is_file() {
+            t!(fs::copy(entry.path(), dst));
+        } else {
+            t!(fs::create_dir_all(&dst));
+            cp_r(&entry.path(), &dst);
+        }
     }
 }
 
