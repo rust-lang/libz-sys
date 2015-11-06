@@ -1,6 +1,6 @@
 language: rust
 rust:
-  - 1.0.0
+  - stable
   - beta
   - nightly
 sudo: false
@@ -8,6 +8,7 @@ before_script:
   - pip install 'travis-cargo<0.2' --user && export PATH=$HOME/.local/bin:$PATH
 script:
   - cargo test
+  - cargo run --manifest-path systest/Cargo.toml
   - cargo doc --no-deps
 after_success:
   - travis-cargo --only nightly doc-upload
@@ -17,3 +18,6 @@ notifications:
 env:
   global:
     secure: AEw7peNq5yyhDlGod702HScsujYFaFWvdOaZKiyVwUMNHkou1U4BiziBGekBqTmrPOW8+iNSS5J7MDPu8I7RAtkrlOvsBKIjmGbBYkzodkMFjR6TNNAnfAXhjqUzHh77wL5qWtNh+bz/PL4RVyjdo1Swnc6mqz5Unu9rP9S2LeE=
+os:
+  - linux
+  - osx

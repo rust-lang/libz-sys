@@ -44,13 +44,13 @@ pub type gz_headerp = *mut gz_header;
 
 #[repr(C)]
 pub struct z_stream {
-    pub next_in: *const Bytef,
+    pub next_in: *mut Bytef,
     pub avail_in: uInt,
     pub total_in: uLong,
     pub next_out: *mut Bytef,
     pub avail_out: uInt,
     pub total_out: uLong,
-    pub msg: *const c_char,
+    pub msg: *mut c_char,
     pub state: *mut internal_state,
     pub zalloc: alloc_func,
     pub zfree: free_func,
@@ -76,21 +76,34 @@ extern "system" {
     pub fn deflateBound(strm: z_streamp, sourceLen: uLong) -> uLong;
     pub fn deflateCopy(dest: z_streamp, source: z_streamp) -> c_int;
     pub fn deflateEnd(strm: z_streamp) -> c_int;
-    pub fn deflateInit(strm: z_streamp, level: c_int) -> c_int;
-    pub fn deflateInit2(strm: z_streamp, level: c_int, method: c_int,
-                        windowBits: c_int, memLevel: c_int,
-                        strategy: c_int) -> c_int;
-    pub fn deflateParams(strm: z_streamp, level: c_int,
+    pub fn deflateInit_(strm: z_streamp, level: c_int,
+                        version: *const c_char,
+                        stream_size: c_int) -> c_int;
+    pub fn deflateInit2_(strm: z_streamp,
+                         level: c_int,
+                         method: c_int,
+                         windowBits: c_int,
+                         memLevel: c_int,
+                         strategy: c_int,
+                         version: *const c_char,
+                         stream_size: c_int) -> c_int;
+    pub fn deflateParams(strm: z_streamp,
+                         level: c_int,
                          strategy: c_int) -> c_int;
-    pub fn deflatePending(strm: z_streamp, pending: *mut libc::c_uint,
+    pub fn deflatePending(strm: z_streamp,
+                          pending: *mut c_uint,
                           bits: *mut c_int) -> c_int;
     pub fn deflatePrime(strm: z_streamp, bits: c_int, value: c_int) -> c_int;
     pub fn deflateReset(strm: z_streamp) -> c_int;
-    pub fn deflateSetDictionary(strm: z_streamp, dictionary: *const Bytef,
+    pub fn deflateSetDictionary(strm: z_streamp,
+                                dictionary: *const Bytef,
                                 dictLength: uInt) -> c_int;
     pub fn deflateSetHeader(strm: z_streamp, head: gz_headerp) -> c_int;
-    pub fn deflateTune(strm: z_streamp, good_length: c_int, max_lazy: c_int,
-                       nice_length: c_int, max_chain: c_int) -> c_int;
+    pub fn deflateTune(strm: z_streamp,
+                       good_length: c_int,
+                       max_lazy: c_int,
+                       nice_length: c_int,
+                       max_chain: c_int) -> c_int;
     pub fn gzbuffer(file: gzFile, size: c_uint) -> c_int;
     pub fn gzdirect(file: gzFile) -> c_int;
     pub fn gzdopen(fd: c_int, mode: *const c_char) -> gzFile;
@@ -115,27 +128,42 @@ extern "system" {
     pub fn gzungetc(c: c_int, file: gzFile) -> c_int;
     pub fn gzwrite(file: gzFile, buf: voidpc, len: c_uint) -> c_int;
     pub fn inflate(strm: z_streamp, flush: c_int) -> c_int;
-    pub fn inflateBack(strm: z_streamp, _in: in_func, in_desc: *mut c_void,
-                       out: out_func, out_desc: *mut c_void) -> c_int;
+    pub fn inflateBack(strm: z_streamp,
+                       _in: in_func,
+                       in_desc: *mut c_void,
+                       out: out_func,
+                       out_desc: *mut c_void) -> c_int;
     pub fn inflateBackEnd(strm: z_streamp) -> c_int;
-    pub fn inflateBackInit(strm: z_streamp, windowBits: c_int,
-                           window: *mut c_uchar) -> c_int;
+    pub fn inflateBackInit_(strm: z_streamp,
+                            windowBits: c_int,
+                            window: *mut c_uchar,
+                            version: *const c_char,
+                            stream_size: c_int) -> c_int;
     pub fn inflateCopy(dest: z_streamp, source: z_streamp) -> c_int;
     pub fn inflateEnd(strm: z_streamp) -> c_int;
-    pub fn inflateGetDictionary(strm: z_streamp, dictionary: *mut Bytef,
+    pub fn inflateGetDictionary(strm: z_streamp,
+                                dictionary: *mut Bytef,
                                 dictLength: *mut uInt) -> c_int;
     pub fn inflateGetHeader(strm: z_streamp, head: gz_headerp) -> c_int;
-    pub fn inflateInit(strm: z_streamp) -> c_int;
-    pub fn inflateInit2(strm: z_streamp, windowBits: c_int) -> c_int;
+    pub fn inflateInit_(strm: z_streamp,
+                        version: *const c_char,
+                        stream_size: c_int) -> c_int;
+    pub fn inflateInit2_(strm: z_streamp,
+                         windowBits: c_int,
+                         version: *const c_char,
+                         stream_size: c_int) -> c_int;
     pub fn inflateMark(strm: z_streamp) -> c_long;
     pub fn inflatePrime(strm: z_streamp, bits: c_int, value: c_int) -> c_int;
     pub fn inflateReset(strm: z_streamp) -> c_int;
     pub fn inflateReset2(strm: z_streamp, windowBits: c_int) -> c_int;
-    pub fn inflateSetDictionary(strm: z_streamp, dictionary: *const Bytef,
+    pub fn inflateSetDictionary(strm: z_streamp,
+                                dictionary: *const Bytef,
                                 dictLength: uInt) -> c_int;
     pub fn inflateSync(strm: z_streamp) -> c_int;
-    pub fn uncompress(dest: *mut Bytef, destLen: *mut uLongf,
-                      source: *const Bytef, sourceLen: uLong) -> c_int;
+    pub fn uncompress(dest: *mut Bytef,
+                      destLen: *mut uLongf,
+                      source: *const Bytef,
+                      sourceLen: uLong) -> c_int;
     pub fn zlibCompileFlags() -> uLong;
     pub fn zlibVersion() -> *const c_char;
 }
