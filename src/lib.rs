@@ -61,7 +61,24 @@ pub struct z_stream {
 }
 pub type z_streamp = *mut z_stream;
 
-extern "system" {
+macro_rules! fns {
+    ($($arg:tt)*) => {
+        item! {
+            #[cfg(all(target_env = "msvc", target_pointer_width = "32"))]
+            extern { $($arg)* }
+        }
+        item! {
+            #[cfg(not(all(target_env = "msvc", target_pointer_width = "32")))]
+            extern "system" { $($arg)* }
+        }
+    }
+}
+
+macro_rules! item {
+    ($i:item) => ($i)
+}
+
+fns! {
     pub fn adler32(adler: uLong, buf: *const Bytef, len: uInt) -> uLong;
     pub fn adler32_combine(adler1: uLong, adler2: uLong, len2: z_off_t) -> uLong;
     pub fn compress(dest: *mut Bytef, destLen: *mut uLongf,
