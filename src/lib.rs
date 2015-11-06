@@ -90,9 +90,6 @@ extern "system" {
     pub fn deflateParams(strm: z_streamp,
                          level: c_int,
                          strategy: c_int) -> c_int;
-    pub fn deflatePending(strm: z_streamp,
-                          pending: *mut c_uint,
-                          bits: *mut c_int) -> c_int;
     pub fn deflatePrime(strm: z_streamp, bits: c_int, value: c_int) -> c_int;
     pub fn deflateReset(strm: z_streamp) -> c_int;
     pub fn deflateSetDictionary(strm: z_streamp,
@@ -104,19 +101,15 @@ extern "system" {
                        max_lazy: c_int,
                        nice_length: c_int,
                        max_chain: c_int) -> c_int;
-    pub fn gzbuffer(file: gzFile, size: c_uint) -> c_int;
     pub fn gzdirect(file: gzFile) -> c_int;
     pub fn gzdopen(fd: c_int, mode: *const c_char) -> gzFile;
     pub fn gzclearerr(file: gzFile);
     pub fn gzclose(file: gzFile) -> c_int;
-    pub fn gzclose_r(file: gzFile) -> c_int;
-    pub fn gzclose_w(file: gzFile) -> c_int;
     pub fn gzeof(file: gzFile) -> c_int;
     pub fn gzerror(file: gzFile, errnum: *mut c_int) -> *const c_char;
     pub fn gzflush(file: gzFile, flush: c_int) -> c_int;
     pub fn gzgetc(file: gzFile) -> c_int;
     pub fn gzgets(file: gzFile, buf: *mut c_char, len: c_int) -> *mut c_char;
-    pub fn gzoffset(file: gzFile) -> z_off_t;
     pub fn gzopen(path: *const c_char, mode: *const c_char) -> gzFile;
     pub fn gzputc(file: gzFile, c: c_int) -> c_int;
     pub fn gzputs(file: gzFile, s: *const c_char) -> c_int;
@@ -141,9 +134,6 @@ extern "system" {
                             stream_size: c_int) -> c_int;
     pub fn inflateCopy(dest: z_streamp, source: z_streamp) -> c_int;
     pub fn inflateEnd(strm: z_streamp) -> c_int;
-    pub fn inflateGetDictionary(strm: z_streamp,
-                                dictionary: *mut Bytef,
-                                dictLength: *mut uInt) -> c_int;
     pub fn inflateGetHeader(strm: z_streamp, head: gz_headerp) -> c_int;
     pub fn inflateInit_(strm: z_streamp,
                         version: *const c_char,
@@ -166,6 +156,28 @@ extern "system" {
                       sourceLen: uLong) -> c_int;
     pub fn zlibCompileFlags() -> uLong;
     pub fn zlibVersion() -> *const c_char;
+
+
+// The above set of functions currently target 1.2.3.4 (what's present on Ubuntu
+// 12.04, but there's some other APIs that were added later. Should figure out
+// how to expose them...
+//
+// Added in 1.2.5.1
+//
+//     pub fn deflatePending(strm: z_streamp,
+//                           pending: *mut c_uint,
+//                           bits: *mut c_int) -> c_int;
+//
+// Addedin 1.2.7.1
+//     pub fn inflateGetDictionary(strm: z_streamp,
+//                                 dictionary: *mut Bytef,
+//                                 dictLength: *mut uInt) -> c_int;
+//
+// Added in 1.2.3.5
+//     pub fn gzbuffer(file: gzFile, size: c_uint) -> c_int;
+//     pub fn gzclose_r(file: gzFile) -> c_int;
+//     pub fn gzclose_w(file: gzFile) -> c_int;
+//     pub fn gzoffset(file: gzFile) -> z_off_t;
 }
 
 pub const Z_NO_FLUSH: c_int = 0;
