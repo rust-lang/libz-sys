@@ -22,9 +22,10 @@ fn main() {
     // Practically all platforms come with libz installed already, but MSVC is
     // one of those sole platforms that doesn't!
     let target = env::var("TARGET").unwrap();
+    let host = env::var("HOST").unwrap();
     if target.contains("msvc") {
         build_msvc_zlib(&target);
-    } else if target.contains("musl") {
+    } else if target.contains("musl") || target != host {
         build_zlib();
     } else {
         println!("cargo:rustc-link-lib=z");
@@ -45,12 +46,17 @@ fn build_zlib() {
     }
     run(Command::new("./configure")
                 .current_dir(&build)
-                .arg(format!("--prefix={}", dst.display()))
                 .env("CC", compiler.path())
                 .env("CFLAGS", cflags));
     run(Command::new("make")
                 .current_dir(&build)
-                .arg("install"));
+                .arg("libz.a"));
+
+    t!(fs::create_dir_all(dst.join("lib")));
+    t!(fs::create_dir_all(dst.join("include")));
+    t!(fs::copy(build.join("libz.a"), dst.join("lib/libz.a")));
+    t!(fs::copy(build.join("zlib.h"), dst.join("include/zlib.h")));
+    t!(fs::copy(build.join("zconf.h"), dst.join("include/zconf.h")));
 
     println!("cargo:rustc-link-lib=static=z");
     println!("cargo:rustc-link-search={}/lib", dst.to_string_lossy());
