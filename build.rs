@@ -15,7 +15,8 @@ macro_rules! t {
 }
 
 fn main() {
-    if pkg_config::find_library("zlib").is_ok() {
+    let want_static = env::var("LIBZ_SYS_STATIC").unwrap_or(String::new()) == "1";
+    if !want_static && pkg_config::find_library("zlib").is_ok() {
         return
     }
 
@@ -25,7 +26,7 @@ fn main() {
     let host = env::var("HOST").unwrap();
     if target.contains("msvc") {
         build_msvc_zlib(&target);
-    } else if target.contains("musl") || target != host {
+    } else if target.contains("musl") || target != host || want_static {
         build_zlib();
     } else {
         println!("cargo:rustc-link-lib=z");
