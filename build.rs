@@ -26,7 +26,10 @@ fn main() {
     let host = env::var("HOST").unwrap();
     if target.contains("msvc") {
         build_msvc_zlib(&target);
-    } else if target.contains("musl") || target != host || want_static {
+    } else if (target.contains("musl") ||
+               target != host ||
+               want_static) &&
+              !target.contains("windows-gnu") {
         build_zlib();
     } else {
         println!("cargo:rustc-link-lib=z");
