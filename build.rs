@@ -29,7 +29,8 @@ fn main() {
     } else if (target.contains("musl") ||
                target != host ||
                want_static) &&
-              !target.contains("windows-gnu") {
+              !target.contains("windows-gnu") &&
+              !target.contains("android") {
         build_zlib();
     } else {
         println!("cargo:rustc-link-lib=z");
