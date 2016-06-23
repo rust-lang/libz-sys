@@ -25,6 +25,7 @@ pub enum internal_state {}
 #[cfg(not(unix))] pub type z_off_t = c_long;
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct gz_header {
     pub text: c_int,
     pub time: uLong,
@@ -43,6 +44,7 @@ pub struct gz_header {
 pub type gz_headerp = *mut gz_header;
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct z_stream {
     pub next_in: *mut Bytef,
     pub avail_in: uInt,
