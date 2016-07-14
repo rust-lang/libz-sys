@@ -89,19 +89,18 @@ fn build_msvc_zlib(target: &str) {
 
     t!(fs::create_dir_all(dst.join("lib")));
     t!(fs::create_dir_all(dst.join("include")));
+    t!(fs::create_dir_all(dst.join("build")));
+    cp_r(&src, &dst.join("build"));
 
-    let mut top = OsString::from("TOP=");
-    top.push(&src);
     let nmake = gcc::windows_registry::find(target, "nmake.exe");
     let mut nmake = nmake.unwrap_or(Command::new("nmake.exe"));
-    run(nmake.current_dir(dst.join("lib"))
+    run(nmake.current_dir(dst.join("build"))
              .arg("/nologo")
              .arg("/f")
              .arg(src.join("win32/Makefile.msc"))
-             .arg(top)
              .arg("zlib.lib"));
 
-    for file in t!(fs::read_dir(&src)) {
+    for file in t!(fs::read_dir(&dst.join("build"))) {
         let file = t!(file).path();
         if let Some(s) = file.file_name().and_then(|s| s.to_str()) {
             if s.ends_with(".h") {
@@ -109,6 +108,7 @@ fn build_msvc_zlib(target: &str) {
             }
         }
     }
+    t!(fs::copy(dst.join("build/zlib.lib"), dst.join("lib/zlib.lib")));
 
     println!("cargo:rustc-link-lib=static=zlib");
     println!("cargo:rustc-link-search={}/lib", dst.to_string_lossy());
