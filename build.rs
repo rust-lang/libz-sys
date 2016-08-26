@@ -15,15 +15,22 @@ macro_rules! t {
 }
 
 fn main() {
+    let host = env::var("HOST").unwrap();
+    let target = env::var("TARGET").unwrap();
+
+    // Don't run pkg-config if we're linking statically (we'll build below) and
+    // also don't run pkg-config on OSX. That'll end up printing `-L /usr/lib`
+    // which wreaks havoc with linking to an OpenSSL in /usr/local/lib (e.g.
+    // homebrew)
     let want_static = env::var("LIBZ_SYS_STATIC").unwrap_or(String::new()) == "1";
-    if !want_static && pkg_config::find_library("zlib").is_ok() {
+    if !want_static &&
+       !(host.contains("apple") && target.contains("apple")) &&
+        pkg_config::find_library("zlib").is_ok() {
         return
     }
 
     // Practically all platforms come with libz installed already, but MSVC is
     // one of those sole platforms that doesn't!
-    let target = env::var("TARGET").unwrap();
-    let host = env::var("HOST").unwrap();
     if target.contains("msvc") {
         build_msvc_zlib(&target);
     } else if (target.contains("musl") ||
