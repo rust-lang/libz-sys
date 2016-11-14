@@ -59,16 +59,18 @@ fn build_zlib() {
     run(Command::new("./configure")
                 .current_dir(&build)
                 .env("CC", compiler.path())
-                .env("CFLAGS", cflags));
+                .env("CFLAGS", cflags)
+                .arg(format!("--prefix={}", dst.display())));
     run(Command::new("make")
                 .current_dir(&build)
                 .arg("libz.a"));
 
-    t!(fs::create_dir_all(dst.join("lib")));
+    t!(fs::create_dir_all(dst.join("lib/pkgconfig")));
     t!(fs::create_dir_all(dst.join("include")));
     t!(fs::copy(build.join("libz.a"), dst.join("lib/libz.a")));
     t!(fs::copy(build.join("zlib.h"), dst.join("include/zlib.h")));
     t!(fs::copy(build.join("zconf.h"), dst.join("include/zconf.h")));
+    t!(fs::copy(build.join("zlib.pc"), dst.join("lib/pkgconfig/zlib.pc")));
 
     println!("cargo:rustc-link-lib=static=z");
     println!("cargo:rustc-link-search={}/lib", dst.to_string_lossy());
