@@ -103,8 +103,13 @@ fn build_zlib_mingw() {
        .arg("BINARY_PATH=bin");
 
     if gcc != "gcc" {
-        assert!(gcc.ends_with("gcc"));
-        cmd.arg(format!("PREFIX={}", gcc.replace("gcc", "")));
+        match gcc.find("gcc") {
+            Some(0) => {}
+            Some(i) => {
+                cmd.arg(format!("PREFIX={}", &gcc[..i]));
+            }
+            None => {}
+        }
     }
     run(&mut cmd);
 
