@@ -34,6 +34,8 @@ fn main() {
     // one of those sole platforms that doesn't!
     if target.contains("msvc") {
         build_msvc_zlib(&target);
+    } else if target.contains("pc-windows-gnu") {
+        build_zlib_mingw();
     } else if (target.contains("musl") ||
                target != host ||
                want_static) &&
@@ -72,6 +74,45 @@ fn build_zlib() {
     t!(fs::copy(build.join("zlib.h"), dst.join("include/zlib.h")));
     t!(fs::copy(build.join("zconf.h"), dst.join("include/zconf.h")));
     t!(fs::copy(build.join("zlib.pc"), dst.join("lib/pkgconfig/zlib.pc")));
+
+    println!("cargo:rustc-link-lib=static=z");
+    println!("cargo:rustc-link-search={}/lib", dst.to_string_lossy());
+    println!("cargo:root={}", dst.to_string_lossy());
+    println!("cargo:include={}/include", dst.to_string_lossy());
+}
+
+fn build_zlib_mingw() {
+    let src = env::current_dir().unwrap().join("src/zlib-1.2.8");
+    let dst = PathBuf::from(env::var_os("OUT_DIR").unwrap());
+    let build = dst.join("build");
+    t!(fs::create_dir_all(&build));
+    cp_r(&src, &build);
+    let compiler = gcc::Config::new().get_compiler();
+    let mut cflags = OsString::new();
+    for arg in compiler.args() {
+        cflags.push(arg);
+        cflags.push(" ");
+    }
+    let gcc = compiler.path().to_str().unwrap();
+    let mut cmd = Command::new("make");
+    cmd.arg("-f").arg("win32/Makefile.gcc")
+       .current_dir(&build)
+       .arg("install")
+       .arg("INCLUDE_PATH=include")
+       .arg("LIBRARY_PATH=lib")
+       .arg("BINARY_PATH=bin");
+
+    if gcc != "gcc" {
+        assert!(gcc.ends_with("gcc"));
+        cmd.arg(format!("PREFIX={}", gcc.replace("gcc", "")));
+    }
+    run(&mut cmd);
+
+    drop(fs::remove_dir_all(dst.join("lib")));
+    drop(fs::remove_dir_all(dst.join("include")));
+    t!(fs::rename(dst.join("build/lib"), dst.join("lib")));
+    t!(fs::rename(dst.join("build/include"), dst.join("include")));
+    t!(fs::create_dir_all(dst.join("lib/pkgconfig")));
 
     println!("cargo:rustc-link-lib=static=z");
     println!("cargo:rustc-link-search={}/lib", dst.to_string_lossy());
