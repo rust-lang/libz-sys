@@ -3,7 +3,8 @@ extern crate gcc;
 
 use std::env;
 use std::ffi::OsString;
-use std::fs;
+use std::fs::{self, File};
+use std::io::prelude::*;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -101,12 +102,22 @@ fn build_msvc_zlib(target: &str) {
     t!(fs::create_dir_all(dst.join("build")));
     cp_r(&src, &dst.join("build"));
 
+    let features = env::var("CARGO_CFG_TARGET_FEATURE")
+                      .unwrap_or(String::new());
+    if features.contains("crt-static") {
+        let mut makefile = String::new();
+        let makefile_path = dst.join("build/win32/Makefile.msc");
+        t!(t!(File::open(&makefile_path)).read_to_string(&mut makefile));
+        let new_makefile = makefile.replace(" -MD ", " -MT ");
+        t!(t!(File::create(&makefile_path)).write_all(new_makefile.as_bytes()));
+    }
+
     let nmake = gcc::windows_registry::find(target, "nmake.exe");
     let mut nmake = nmake.unwrap_or(Command::new("nmake.exe"));
     run(nmake.current_dir(dst.join("build"))
              .arg("/nologo")
              .arg("/f")
-             .arg(src.join("win32/Makefile.msc"))
+             .arg(dst.join("build/win32/Makefile.msc"))
              .arg("zlib.lib"));
 
     for file in t!(fs::read_dir(&dst.join("build"))) {
