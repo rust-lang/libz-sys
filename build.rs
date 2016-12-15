@@ -98,9 +98,10 @@ fn build_zlib_mingw() {
     cmd.arg("-f").arg("win32/Makefile.gcc")
        .current_dir(&build)
        .arg("install")
-       .arg("INCLUDE_PATH=include")
-       .arg("LIBRARY_PATH=lib")
-       .arg("BINARY_PATH=bin");
+       .arg(format!("prefix={}", dst.display()))
+       .arg(format!("INCLUDE_PATH={}", dst.join("include").display()))
+       .arg(format!("LIBRARY_PATH={}", dst.join("lib").display()))
+       .arg(format!("BINARY_PATH={}", dst.join("bin").display()));
 
     if gcc != "gcc" {
         match gcc.find("gcc") {
@@ -113,10 +114,6 @@ fn build_zlib_mingw() {
     }
     run(&mut cmd);
 
-    drop(fs::remove_dir_all(dst.join("lib")));
-    drop(fs::remove_dir_all(dst.join("include")));
-    t!(fs::rename(dst.join("build/lib"), dst.join("lib")));
-    t!(fs::rename(dst.join("build/include"), dst.join("include")));
     t!(fs::create_dir_all(dst.join("lib/pkgconfig")));
 
     println!("cargo:rustc-link-lib=static=z");
