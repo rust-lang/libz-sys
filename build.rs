@@ -1,4 +1,4 @@
-extern crate pkg_config;
+extern crate metadeps;
 extern crate gcc;
 
 use std::env;
@@ -26,7 +26,7 @@ fn main() {
     let want_static = env::var("LIBZ_SYS_STATIC").unwrap_or(String::new()) == "1";
     if !want_static &&
        !(host.contains("apple") && target.contains("apple")) &&
-        pkg_config::find_library("zlib").is_ok() {
+        metadeps::probe().is_ok() {
         return
     }
 

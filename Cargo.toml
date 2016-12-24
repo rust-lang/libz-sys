@@ -16,5 +16,8 @@ Bindings to the system libz library (also known as zlib).
 libc = "0.2"
 
 [build-dependencies]
-pkg-config = "0.3"
+metadeps = "1"
 gcc = "0.3.17"
+
+[package.metadata.pkg-config]
+zlib = "1.2.3.4"
