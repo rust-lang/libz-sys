@@ -100,6 +100,7 @@ fn build_zlib_mingw() {
        .current_dir(&build)
        .arg("install")
        .arg(format!("prefix={}", dst.display()))
+       .arg("IMPLIB=")
        .arg(format!("INCLUDE_PATH={}", dst.join("include").display()))
        .arg(format!("LIBRARY_PATH={}", dst.join("lib").display()))
        .arg(format!("BINARY_PATH={}", dst.join("bin").display()));
