@@ -11,6 +11,7 @@ documentation = "http://alexcrichton.com/libz-sys"
 description = """
 Bindings to the system libz library (also known as zlib).
 """
+categories = ["external-ffi-bindings"]
 
 [dependencies]
 libc = "0.2"
