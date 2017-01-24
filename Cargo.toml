@@ -13,6 +13,9 @@ Bindings to the system libz library (also known as zlib).
 """
 categories = ["external-ffi-bindings"]
 
+[workspace]
+members = ["systest"]
+
 [dependencies]
 libc = "0.2"
 
