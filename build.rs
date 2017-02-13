@@ -82,6 +82,25 @@ fn build_zlib() {
     println!("cargo:include={}/include", dst.to_string_lossy());
 }
 
+// We have to run a few shell scripts, which choke quite a bit on both `\`
+// characters and on `C:\` paths, so normalize both of them away.
+fn sanitize_sh(path: &Path) -> String {
+    let path = path.to_str().unwrap().replace("\\", "/");
+    return change_drive(&path).unwrap_or(path);
+
+    fn change_drive(s: &str) -> Option<String> {
+        let mut ch = s.chars();
+        let drive = ch.next().unwrap_or('C');
+        if ch.next() != Some(':') {
+            return None
+        }
+        if ch.next() != Some('/') {
+            return None
+        }
+        Some(format!("/{}/{}", drive, &s[drive.len_utf8() + 2..]))
+    }
+}
+
 fn build_zlib_mingw() {
     let src = env::current_dir().unwrap().join("src/zlib-1.2.8");
     let dst = PathBuf::from(env::var_os("OUT_DIR").unwrap());
@@ -94,16 +113,17 @@ fn build_zlib_mingw() {
         cflags.push(arg);
         cflags.push(" ");
     }
-    let gcc = compiler.path().to_str().unwrap();
+    let gcc = sanitize_sh(compiler.path());
     let mut cmd = Command::new("make");
     cmd.arg("-f").arg("win32/Makefile.gcc")
        .current_dir(&build)
        .arg("install")
-       .arg(format!("prefix={}", dst.display()))
+       .arg(format!("prefix={}", sanitize_sh(&dst)))
        .arg("IMPLIB=")
-       .arg(format!("INCLUDE_PATH={}", dst.join("include").display()))
-       .arg(format!("LIBRARY_PATH={}", dst.join("lib").display()))
-       .arg(format!("BINARY_PATH={}", dst.join("bin").display()));
+       .arg(format!("INCLUDE_PATH={}", sanitize_sh(&dst.join("include"))))
+       .arg(format!("LIBRARY_PATH={}", sanitize_sh(&dst.join("lib"))))
+       .arg(format!("BINARY_PATH={}", sanitize_sh(&dst.join("bin"))))
+       .env("CFLAGS", cflags);
 
     if gcc != "gcc" {
         match gcc.find("gcc") {
