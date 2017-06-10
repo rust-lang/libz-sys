@@ -185,6 +185,7 @@ fn build_msvc_zlib(target: &str) {
 
     let nmake = gcc::windows_registry::find(target, "nmake.exe");
     let mut nmake = nmake.unwrap_or(Command::new("nmake.exe"));
+    nmake.env_remove("MAKEFLAGS");
     run(nmake.current_dir(dst.join("build"))
              .arg("/nologo")
              .arg("/f")
