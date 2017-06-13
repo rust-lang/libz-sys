@@ -1,8 +1,14 @@
 environment:
   matrix:
+  - TARGET: x86_64-pc-windows-gnu
+    MSYS_BITS: 64
+  - TARGET: i686-pc-windows-gnu
+    MSYS_BITS: 32
   - TARGET: x86_64-pc-windows-msvc
+  - TARGET: i686-pc-windows-msvc
+  - TARGET: x86_64-pc-windows-msvc
+    VCPKG_DEFAULT_TRIPLET: x64-windows-static
     RUSTFLAGS: -Ctarget-feature=+crt-static
-
 install:
   - ps: Start-FileDownload "https://static.rust-lang.org/dist/rust-nightly-${env:TARGET}.exe"
   - rust-nightly-%TARGET%.exe /VERYSILENT /NORESTART /DIR="C:\Program Files (x86)\Rust"
