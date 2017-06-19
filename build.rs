@@ -71,9 +71,9 @@ fn build_zlib() {
                 .env("CC", compiler.path())
                 .env("CFLAGS", cflags)
                 .arg(format!("--prefix={}", dst.display())), "sh");
-    run(Command::new("make")
-                .current_dir(&build)
-                .arg("libz.a"), "make");
+    run(make()
+            .current_dir(&build)
+            .arg("libz.a"), "make");
 
     t!(fs::create_dir_all(dst.join("lib/pkgconfig")));
     t!(fs::create_dir_all(dst.join("include")));
@@ -86,6 +86,17 @@ fn build_zlib() {
     println!("cargo:rustc-link-search={}/lib", dst.to_string_lossy());
     println!("cargo:root={}", dst.to_string_lossy());
     println!("cargo:include={}/include", dst.to_string_lossy());
+}
+
+fn make() -> Command {
+    let cmd = if cfg!(target_os = "freebsd") {"gmake"} else {"make"};
+    let mut cmd = Command::new(cmd);
+    // We're using the MSYS make which doesn't work with the mingw32-make-style
+    // MAKEFLAGS, so remove that from the env if present.
+    if cfg!(windows) {
+        cmd.env_remove("MAKEFLAGS").env_remove("MFLAGS");
+    }
+    return cmd
 }
 
 // We have to run a few shell scripts, which choke quite a bit on both `\`
