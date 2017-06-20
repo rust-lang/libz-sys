@@ -131,7 +131,7 @@ fn build_zlib_mingw() {
         cflags.push(" ");
     }
     let gcc = sanitize_sh(compiler.path());
-    let mut cmd = Command::new("make");
+    let mut cmd = make();
     cmd.arg("-f").arg("win32/Makefile.gcc")
        .current_dir(&build)
        .arg("install")
