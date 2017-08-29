@@ -4,8 +4,6 @@ matrix:
   include:
     - rust: stable
     - os: osx
-    - rust: 1.8.0
-      script: cargo build
 
     - env: LIBZ_SYS_STATIC=1
     - env: LIBZ_SYS_STATIC=1
