@@ -1,7 +1,7 @@
 extern crate pkg_config;
 #[cfg(target_env = "msvc")]
 extern crate vcpkg;
-extern crate gcc;
+extern crate cc;
 
 use std::env;
 use std::ffi::OsString;
@@ -60,7 +60,7 @@ fn build_zlib() {
     let build = dst.join("build");
     t!(fs::create_dir_all(&build));
     cp_r(&src, &build);
-    let compiler = gcc::Config::new().get_compiler();
+    let compiler = cc::Build::new().get_compiler();
     let mut cflags = OsString::new();
     for arg in compiler.args() {
         cflags.push(arg);
@@ -124,7 +124,7 @@ fn build_zlib_mingw() {
     let build = dst.join("build");
     t!(fs::create_dir_all(&build));
     cp_r(&src, &build);
-    let compiler = gcc::Config::new().get_compiler();
+    let compiler = cc::Build::new().get_compiler();
     let mut cflags = OsString::new();
     for arg in compiler.args() {
         cflags.push(arg);
@@ -194,7 +194,7 @@ fn build_msvc_zlib(target: &str) {
         t!(t!(File::create(&makefile_path)).write_all(new_makefile.as_bytes()));
     }
 
-    let nmake = gcc::windows_registry::find(target, "nmake.exe");
+    let nmake = cc::windows_registry::find(target, "nmake.exe");
     let mut nmake = nmake.unwrap_or(Command::new("nmake.exe"));
 
     // These env vars are intended for mingw32-make, not `namek`, which chokes
