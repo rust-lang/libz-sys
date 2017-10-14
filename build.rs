@@ -91,11 +91,15 @@ fn build_zlib() {
 fn make() -> Command {
     let cmd = if cfg!(any(target_os = "freebsd", target_os = "dragonfly")) {"gmake"} else {"make"};
     let mut cmd = Command::new(cmd);
+
     // We're using the MSYS make which doesn't work with the mingw32-make-style
     // MAKEFLAGS, so remove that from the env if present.
     if cfg!(windows) {
         cmd.env_remove("MAKEFLAGS").env_remove("MFLAGS");
+    } else if let Some(makeflags) = env::var_os("CARGO_MAKEFLAGS") {
+        cmd.env("MAKEFLAGS", makeflags);
     }
+
     return cmd
 }
 
