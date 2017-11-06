@@ -6,7 +6,7 @@ build = "build.rs"
 
 [dependencies]
 libz-sys = { path = ".." }
-libc = "0.1"
+libc = "0.2"
 
 [build-dependencies]
-ctest = { git = "https://github.com/alexcrichton/ctest" }
+ctest = "0.1"
