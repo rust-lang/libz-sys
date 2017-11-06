@@ -134,6 +134,7 @@ fn build_zlib_mingw() {
         cflags.push(arg);
         cflags.push(" ");
     }
+    cflags.push("-Wno-error ");
     let gcc = sanitize_sh(compiler.path());
     let mut cmd = make();
     cmd.arg("-f").arg("win32/Makefile.gcc")
