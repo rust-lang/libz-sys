@@ -59,7 +59,7 @@ fn main() {
 }
 
 fn build_zlib() {
-    let src = env::current_dir().unwrap().join("src/zlib-1.2.11");
+    let src = env::current_dir().unwrap().join("src/zlib");
     let dst = PathBuf::from(env::var_os("OUT_DIR").unwrap());
     let build = dst.join("build");
     t!(fs::create_dir_all(&build));
@@ -127,7 +127,7 @@ fn sanitize_sh(path: &Path) -> String {
 }
 
 fn build_zlib_mingw() {
-    let src = env::current_dir().unwrap().join("src/zlib-1.2.11");
+    let src = env::current_dir().unwrap().join("src/zlib");
     let dst = PathBuf::from(env::var_os("OUT_DIR").unwrap());
     let build = dst.join("build");
     t!(fs::create_dir_all(&build));
@@ -184,7 +184,7 @@ fn cp_r(dir: &Path, dst: &Path) {
 }
 
 fn build_msvc_zlib(target: &str) {
-    let src = t!(env::current_dir()).join("src/zlib-1.2.11");
+    let src = t!(env::current_dir()).join("src/zlib");
     let dst = PathBuf::from(env::var_os("OUT_DIR").unwrap());
 
     t!(fs::create_dir_all(dst.join("lib")));
