@@ -22,13 +22,17 @@ fn main() {
     let host = env::var("HOST").unwrap();
     let target = env::var("TARGET").unwrap();
 
+    let host_and_target_contain = |s| host.contains(s) && target.contains(s);
+
     // Don't run pkg-config if we're linking statically (we'll build below) and
-    // also don't run pkg-config on OSX. That'll end up printing `-L /usr/lib`
-    // which wreaks havoc with linking to an OpenSSL in /usr/local/lib (e.g.
-    // homebrew)
+    // also don't run pkg-config on macOS/FreeBSD/DragonFly. That'll end up printing
+    // `-L /usr/lib` which wreaks havoc with linking to an OpenSSL in /usr/local/lib
+    // (Homebrew, Ports, etc.)
     let want_static = env::var("LIBZ_SYS_STATIC").unwrap_or(String::new()) == "1";
     if !want_static &&
-       !(host.contains("apple") && target.contains("apple")) &&
+       !(host_and_target_contain("apple") ||
+         host_and_target_contain("freebsd") ||
+         host_and_target_contain("dragonfly")) &&
         pkg_config::find_library("zlib").is_ok() {
         return
     }
