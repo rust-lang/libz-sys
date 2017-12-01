@@ -35,7 +35,7 @@ fn main() {
        !(host_and_target_contain("apple") ||
          host_and_target_contain("freebsd") ||
          host_and_target_contain("dragonfly")) &&
-        pkg_config::find_library("zlib").is_ok() {
+        pkg_config::Config::new().cargo_metadata(true).probe("zlib").is_ok() {
         return
     }
 
