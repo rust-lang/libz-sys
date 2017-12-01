@@ -19,6 +19,8 @@ macro_rules! t {
 }
 
 fn main() {
+    println!("cargo:rerun-if-env-changed=LIBZ_SYS_STATIC");
+    println!("cargo:rerun-if-changed=build.rs");
     let host = env::var("HOST").unwrap();
     let target = env::var("TARGET").unwrap();
 
