@@ -55,29 +55,22 @@ fn main() {
                want_static) &&
               !target.contains("windows-gnu") &&
               !target.contains("android") {
-        build_zlib();
+        build_zlib(&host, &target);
     } else {
         println!("cargo:rustc-link-lib=z");
     }
 }
 
-fn build_zlib() {
+fn build_zlib(host: &str, target: &str) {
     let src = env::current_dir().unwrap().join("src/zlib");
     let dst = PathBuf::from(env::var_os("OUT_DIR").unwrap());
     let build = dst.join("build");
     t!(fs::create_dir_all(&build));
     cp_r(&src, &build);
-    let compiler = cc::Build::new().get_compiler();
-    let mut cflags = OsString::new();
-    for arg in compiler.args() {
-        cflags.push(arg);
-        cflags.push(" ");
-    }
-    run(Command::new("./configure")
-                .current_dir(&build)
-                .env("CC", compiler.path())
-                .env("CFLAGS", cflags)
-                .arg(format!("--prefix={}", dst.display())), "sh");
+
+    run(configure(host, target)
+            .current_dir(&build)
+            .arg(format!("--prefix={}", dst.display())), "sh");
     run(make()
             .current_dir(&build)
             .arg("libz.a"), "make");
@@ -93,6 +86,25 @@ fn build_zlib() {
     println!("cargo:rustc-link-search={}/lib", dst.to_string_lossy());
     println!("cargo:root={}", dst.to_string_lossy());
     println!("cargo:include={}/include", dst.to_string_lossy());
+}
+
+fn configure(host: &str, target: &str) -> Command {
+    let compiler = cc::Build::new().get_compiler();
+    let mut cflags = OsString::new();
+    for arg in compiler.args() {
+        cflags.push(arg);
+        cflags.push(" ");
+    }
+
+    let mut cmd = Command::new("./configure");
+    cmd.env("CC", compiler.path());
+    cmd.env("CFLAGS", cflags);
+
+    if host != target {
+        cmd.env("CHOST", target);
+    }
+
+    return cmd
 }
 
 fn make() -> Command {
