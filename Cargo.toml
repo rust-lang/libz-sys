@@ -1,7 +1,7 @@
 [package]
 
 name = "libz-sys"
-version = "1.0.21"
+version = "1.0.22"
 authors = ["Alex Crichton <alex@alexcrichton.com>"]
 links = "z"
 build = "build.rs"
