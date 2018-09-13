@@ -6,6 +6,7 @@ extern crate cc;
 use std::env;
 use std::fs;
 use std::path::PathBuf;
+use std::process::Command;
 
 fn main() {
     println!("cargo:rerun-if-env-changed=LIBZ_SYS_STATIC");
@@ -42,6 +43,8 @@ fn main() {
         return
     }
 
+    let mut cfg = cc::Build::new();
+
     // Whitelist a bunch of situations where we build unconditionally.
     //
     // MSVC basically never has it preinstalled, MinGW picks up a bunch of weird
@@ -53,20 +56,27 @@ fn main() {
         target != host ||
         target.contains("musl")
     {
-        return build_zlib(&target);
+        return build_zlib(&mut cfg, &target);
     }
 
     // If we've gotten this far we're probably a pretty standard platform.
-    // Almost all platforms here ship libz by default, so just assume it exists.
-    // This is buggy if zlib1g-dev isn't installed on Linux, we should fix that.
-    println!("cargo:rustc-link-lib=z");
+    // Almost all platforms here ship libz by default, but some don't have
+    // pkg-config files that we would find above.
+    //
+    // In any case test if zlib is actually installed and if so we link to it,
+    // otherwise continue below to build things.
+    if zlib_installed(&mut cfg) {
+        println!("cargo:rustc-link-lib=z");
+        return
+    }
+
+    build_zlib(&mut cfg, &target)
 }
 
-fn build_zlib(target: &str) {
+fn build_zlib(cfg: &mut cc::Build, target: &str) {
     let dst = PathBuf::from(env::var_os("OUT_DIR").unwrap());
     let build = dst.join("build");
 
-    let mut cfg = cc::Build::new();
     cfg.warnings(false)
         .out_dir(&build)
         .include("src/zlib");
@@ -128,4 +138,21 @@ fn try_vcpkg() -> bool {
             false
         },
     }
+}
+
+fn zlib_installed(cfg: &mut cc::Build) -> bool {
+    let compiler = cfg.get_compiler();
+    let mut cmd = Command::new(compiler.path());
+    cmd.arg("src/smoke.c")
+        .arg("-o").arg("/dev/null")
+        .arg("-lz");
+
+    println!("running {:?}", cmd);
+    if let Ok(status) = cmd.status() {
+        if status.success() {
+            return true
+        }
+    }
+
+    false
 }

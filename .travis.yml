@@ -9,6 +9,11 @@ matrix:
     - env: LIBZ_SYS_STATIC=1
       os: osx
 
+    - rust: stable
+      script:
+        - cargo generate-lockfile
+        - ci/run-docker.sh
+
     - rust: beta
     - rust: nightly
       before_script:
