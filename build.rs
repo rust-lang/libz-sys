@@ -100,6 +100,7 @@ fn build_zlib(cfg: &mut cc::Build, target: &str) {
         cfg.define("STDC", None);
         cfg.define("_LARGEFILE64_SOURCE", None);
         cfg.define("_POSIX_SOURCE", None);
+        cfg.flag("-fvisibility=hidden");
     }
 
     cfg.compile("z");
