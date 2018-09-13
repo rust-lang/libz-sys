@@ -86,9 +86,9 @@ fn build_zlib(target: &str) {
         .file("src/zlib/trees.c")
         .file("src/zlib/uncompr.c")
         .file("src/zlib/zutil.c");
-    cfg.define("STDC", None);
-    cfg.define("_LARGEFILE64_SOURCE", None);
     if !target.contains("windows") {
+        cfg.define("STDC", None);
+        cfg.define("_LARGEFILE64_SOURCE", None);
         cfg.define("_POSIX_SOURCE", None);
     }
 
