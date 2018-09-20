@@ -102,6 +102,9 @@ fn build_zlib(cfg: &mut cc::Build, target: &str) {
         cfg.define("_POSIX_SOURCE", None);
         cfg.flag("-fvisibility=hidden");
     }
+    if target.contains("solaris") {
+        cfg.define("_XOPEN_SOURCE", "700");
+    }
 
     cfg.compile("z");
 
