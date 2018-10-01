@@ -25,3 +25,9 @@ cc = "1.0.18"
 
 [target.'cfg(target_env = "msvc")'.build-dependencies]
 vcpkg = "0.2"
+
+[features]
+# When building from source, enable building optimized assembly routines. As
+# noted in `contrib/README.contrib`, these routines are experimental and not
+# vetted, use at your own risk!
+asm = []

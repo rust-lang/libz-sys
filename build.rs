@@ -13,6 +13,7 @@ fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     let host = env::var("HOST").unwrap();
     let target = env::var("TARGET").unwrap();
+    let wants_asm = cfg!(feature = "asm");
 
     let host_and_target_contain = |s| host.contains(s) && target.contains(s);
 
@@ -21,7 +22,8 @@ fn main() {
     // `-L /usr/lib` which wreaks havoc with linking to an OpenSSL in /usr/local/lib
     // (Homebrew, Ports, etc.)
     let want_static = env::var("LIBZ_SYS_STATIC").unwrap_or(String::new()) == "1";
-    if !want_static &&
+    if !wants_asm &&
+       !want_static &&
        !target.contains("msvc") && // pkg-config just never works here
        !(host_and_target_contain("apple") ||
          host_and_target_contain("freebsd") ||
@@ -31,14 +33,14 @@ fn main() {
     }
 
     if target.contains("msvc") {
-        if try_vcpkg() {
+        if !wants_asm && try_vcpkg() {
             return;
         }
     }
 
     // All android compilers should come with libz by default, so let's just use
     // the one already there.
-    if target.contains("android") {
+    if !wants_asm && target.contains("android") {
         println!("cargo:rustc-link-lib=z");
         return
     }
@@ -50,7 +52,8 @@ fn main() {
     // MSVC basically never has it preinstalled, MinGW picks up a bunch of weird
     // paths we don't like, `want_static` may force us, cross compiling almost
     // never has a prebuilt version, and musl is almost always static.
-    if target.contains("msvc") ||
+    if wants_asm ||
+        target.contains("msvc") ||
         target.contains("pc-windows-gnu") ||
         want_static ||
         target != host ||
@@ -76,6 +79,7 @@ fn main() {
 fn build_zlib(cfg: &mut cc::Build, target: &str) {
     let dst = PathBuf::from(env::var_os("OUT_DIR").unwrap());
     let build = dst.join("build");
+    let asm = cfg!(feature = "asm");
 
     cfg.warnings(false)
         .out_dir(&build)
@@ -104,6 +108,30 @@ fn build_zlib(cfg: &mut cc::Build, target: &str) {
     }
     if target.contains("solaris") {
         cfg.define("_XOPEN_SOURCE", "700");
+    }
+
+    if asm {
+        if target.contains("windows-msvc") {
+            if target.starts_with("x86_64") {
+                cfg.file("src/zlib/contrib/masmx64/inffasx64.asm")
+                    .file("src/zlib/contrib/masmx64/gvmat64.asm")
+                    .define("ASMV", None)
+                    .define("ASMINF", None);
+            } else if target.starts_with("i686") {
+                cfg.file("src/zlib/contrib/masmx86/inffas32.asm")
+                    .file("src/zlib/contrib/masmx86/match686.asm")
+                    .define("ASMV", None)
+                    .define("ASMINF", None);
+            }
+        } else {
+            if target.starts_with("x86_64") {
+                cfg.file("src/zlib/contrib/amd64/amd64-match.S")
+                    .define("ASMV", None);
+            } else if target.starts_with("i686") {
+                cfg.file("src/zlib/contrib/inflate86/inffast.S")
+                    .define("ASMINF", None);
+            }
+        }
     }
 
     cfg.compile("z");
