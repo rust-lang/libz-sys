@@ -31,3 +31,5 @@ vcpkg = "0.2"
 # noted in `contrib/README.contrib`, these routines are experimental and not
 # vetted, use at your own risk!
 asm = []
+# Enable this feature if you want to have a staticly linked libz
+static = []

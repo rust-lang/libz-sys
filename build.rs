@@ -21,7 +21,8 @@ fn main() {
     // also don't run pkg-config on macOS/FreeBSD/DragonFly. That'll end up printing
     // `-L /usr/lib` which wreaks havoc with linking to an OpenSSL in /usr/local/lib
     // (Homebrew, Ports, etc.)
-    let want_static = env::var("LIBZ_SYS_STATIC").unwrap_or(String::new()) == "1";
+    let want_static =
+        cfg!(feature = "static") || env::var("LIBZ_SYS_STATIC").unwrap_or(String::new()) == "1";
     if !wants_asm &&
        !want_static &&
        !target.contains("msvc") && // pkg-config just never works here
