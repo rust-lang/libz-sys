@@ -1,5 +1,4 @@
 language: rust
-sudo: false
 matrix:
   include:
     - rust: stable
@@ -16,19 +15,20 @@ matrix:
 
     - rust: beta
     - rust: nightly
-      before_script:
-        - pip install 'travis-cargo<0.2' --user && export PATH=$HOME/.local/bin:$PATH
-      after_success:
-        - travis-cargo doc-upload
 
+    - name: "master doc to gh-pages"
+      rust: nightly
+      script:
+        - cargo doc --no-deps
+      deploy:
+        provider: script
+        script: curl -LsSf https://git.io/fhJ8n | rustc - && (cd target/doc && ../../rust_out)
+        skip_cleanup: true
+        on:
+          branch: master
 script:
   - cargo test
   - cargo run --manifest-path systest/Cargo.toml
-  - cargo doc --no-deps
-
 notifications:
   email:
     on_success: never
-env:
-  global:
-    secure: "eq1KPWs3sNmvrQj6ayLRrY2Jqwpx4p9CNU5gRU6LCdx2otIQqKXY1Jj9E6uvQIspL6ZpCNzYDMDUSsRdNahdx59WQGD/mxdrFWStUonJ4t0al2FIQ97NaEy57r4vw36oViDCzqZudDlsacHZnpCpI8ei6AB73rGXfxc3g3fxk6o="
