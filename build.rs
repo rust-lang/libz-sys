@@ -28,9 +28,18 @@ fn main() {
        !target.contains("msvc") && // pkg-config just never works here
        !(host_and_target_contain("apple") ||
          host_and_target_contain("freebsd") ||
-         host_and_target_contain("dragonfly")) &&
-        pkg_config::Config::new().cargo_metadata(true).probe("zlib").is_ok() {
-        return
+         host_and_target_contain("dragonfly"))
+    {
+        // Don't print system lib dirs to cargo since this interferes with other
+        // packages adding non-system search paths to link against libraries
+        // that are also found in a system-wide lib dir.
+        let zlib = pkg_config::Config::new()
+            .cargo_metadata(true)
+            .print_system_libs(false)
+            .probe("zlib");
+        if zlib.is_ok() {
+            return;
+        }
     }
 
     if target.contains("msvc") {
