@@ -140,10 +140,12 @@ fn build_zlib(cfg: &mut cc::Build, target: &str) {
 
     cfg.compile("z");
 
-    fs::create_dir_all(dst.join("lib/pkgconfig")).unwrap();
+    let lib = dst.join("lib");
+    fs::create_dir_all(lib.join("pkgconfig")).unwrap();
     fs::create_dir_all(dst.join("include")).unwrap();
     fs::copy("src/zlib/zlib.h", dst.join("include/zlib.h")).unwrap();
     fs::copy("src/zlib/zconf.h", dst.join("include/zconf.h")).unwrap();
+    fs::rename(build.join("libz.a"), lib.join("libz.a")).unwrap();
 
     fs::write(
         dst.join("lib/pkgconfig/zlib.pc"),
@@ -153,6 +155,7 @@ fn build_zlib(cfg: &mut cc::Build, target: &str) {
     ).unwrap();
 
     println!("cargo:root={}", dst.to_str().unwrap());
+    println!("cargo:rustc-link-search=native={}", lib.to_str().unwrap());
     println!("cargo:include={}/include", dst.to_str().unwrap());
 }
 
