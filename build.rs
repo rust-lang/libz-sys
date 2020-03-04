@@ -90,10 +90,6 @@ fn build_zlib(cfg: &mut cc::Build, target: &str) {
         .file("src/zlib/compress.c")
         .file("src/zlib/crc32.c")
         .file("src/zlib/deflate.c")
-        .file("src/zlib/gzclose.c")
-        .file("src/zlib/gzlib.c")
-        .file("src/zlib/gzread.c")
-        .file("src/zlib/gzwrite.c")
         .file("src/zlib/infback.c")
         .file("src/zlib/inffast.c")
         .file("src/zlib/inflate.c")
@@ -101,6 +97,17 @@ fn build_zlib(cfg: &mut cc::Build, target: &str) {
         .file("src/zlib/trees.c")
         .file("src/zlib/uncompr.c")
         .file("src/zlib/zutil.c");
+
+    if !cfg!(feature = "libc") || target == "wasm32-unknown-unknown" {
+        cfg.define("Z_SOLO", None);
+    } else {
+        cfg
+        .file("src/zlib/gzclose.c")
+        .file("src/zlib/gzlib.c")
+        .file("src/zlib/gzread.c")
+        .file("src/zlib/gzwrite.c");
+    }
+
     if !target.contains("windows") {
         cfg.define("STDC", None);
         cfg.define("_LARGEFILE64_SOURCE", None);

@@ -1,9 +1,7 @@
 #![doc(html_root_url = "https://docs.rs/libz-sys/1.0")]
 #![allow(non_camel_case_types)]
 
-extern crate libc;
-
-use libc::{c_char, c_int, c_long, c_uchar, c_uint, c_ulong, c_void};
+use std::os::raw::{c_char, c_int, c_long, c_uchar, c_uint, c_ulong, c_void};
 
 pub type alloc_func = unsafe extern fn (voidpf, uInt, uInt) -> voidpf;
 pub type Bytef = u8;

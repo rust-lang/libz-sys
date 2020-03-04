@@ -16,9 +16,6 @@ categories = ["external-ffi-bindings"]
 [workspace]
 members = ["systest"]
 
-[dependencies]
-libc = "0.2.43"
-
 [build-dependencies]
 pkg-config = "0.3.9"
 cc = "1.0.18"
@@ -27,9 +24,16 @@ cc = "1.0.18"
 vcpkg = "0.2"
 
 [features]
+default = ["libc"]
 # When building from source, enable building optimized assembly routines. As
 # noted in `contrib/README.contrib`, these routines are experimental and not
 # vetted, use at your own risk!
 asm = []
 # Enable this feature if you want to have a staticly linked libz
 static = []
+# When this feature is disabled, zlib will be built in Z_SOLO mode which
+# removes dependency on any external libraries like libc at the cost of
+# eliminating some high-level functions like gz*, compress* and
+# uncompress, and requiring embedder to provide memory allocation
+# routines to deflate and inflate.
+libc = []
