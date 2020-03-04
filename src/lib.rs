@@ -19,8 +19,8 @@ pub type voidpf = *mut c_void;
 pub enum gzFile_s {}
 pub enum internal_state {}
 
-#[cfg(unix)] pub type z_off_t = libc::off_t;
-#[cfg(not(unix))] pub type z_off_t = c_long;
+#[cfg(all(unix, feature = "libc"))] pub type z_off_t = libc::off_t;
+#[cfg(not(all(unix, feature = "libc")))] pub type z_off_t = c_long;
 
 #[repr(C)]
 #[derive(Copy, Clone)]

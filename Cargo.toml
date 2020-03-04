@@ -16,6 +16,14 @@ categories = ["external-ffi-bindings"]
 [workspace]
 members = ["systest"]
 
+[dependencies]
+# When this feature is disabled, zlib will be built in Z_SOLO mode which
+# removes dependency on any external libraries like libc at the cost of
+# eliminating some high-level functions like gz*, compress* and
+# uncompress, and requiring embedder to provide memory allocation
+# routines to deflate and inflate.
+libc = { version = "0.2.43", optional = true }
+
 [build-dependencies]
 pkg-config = "0.3.9"
 cc = "1.0.18"
@@ -31,9 +39,3 @@ default = ["libc"]
 asm = []
 # Enable this feature if you want to have a staticly linked libz
 static = []
-# When this feature is disabled, zlib will be built in Z_SOLO mode which
-# removes dependency on any external libraries like libc at the cost of
-# eliminating some high-level functions like gz*, compress* and
-# uncompress, and requiring embedder to provide memory allocation
-# routines to deflate and inflate.
-libc = []
