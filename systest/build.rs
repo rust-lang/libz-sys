@@ -15,22 +15,10 @@ fn main() {
             n.to_string()
         }
     });
-    cfg.skip_signededness(|ty| {
-        match ty  {
-            "gz_headerp" |
-            "voidpf" |
-            "voidcf" |
-            "voidp" |
-            "out_func" |
-            "voidpc" |
-            "gzFile" |
-            "in_func" |
-            "free_func" |
-            "alloc_func" |
-            "z_streamp" => true,
-            _ => false,
-        }
+    cfg.skip_signededness(|ty| match ty {
+        "gz_headerp" | "voidpf" | "voidcf" | "voidp" | "out_func" | "voidpc" | "gzFile"
+        | "in_func" | "free_func" | "alloc_func" | "z_streamp" => true,
+        _ => false,
     });
     cfg.generate("../src/lib.rs", "all.rs");
 }
-

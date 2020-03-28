@@ -1,7 +1,7 @@
+extern crate cc;
 extern crate pkg_config;
 #[cfg(target_env = "msvc")]
 extern crate vcpkg;
-extern crate cc;
 
 use std::env;
 use std::fs;
@@ -29,8 +29,9 @@ fn main() {
        !(host_and_target_contain("apple") ||
          host_and_target_contain("freebsd") ||
          host_and_target_contain("dragonfly")) &&
-        pkg_config::Config::new().cargo_metadata(true).probe("zlib").is_ok() {
-        return
+        pkg_config::Config::new().cargo_metadata(true).probe("zlib").is_ok()
+    {
+        return;
     }
 
     if target.contains("msvc") {
@@ -43,7 +44,7 @@ fn main() {
     // the one already there.
     if !wants_asm && target.contains("android") {
         println!("cargo:rustc-link-lib=z");
-        return
+        return;
     }
 
     let mut cfg = cc::Build::new();
@@ -53,12 +54,12 @@ fn main() {
     // MSVC basically never has it preinstalled, MinGW picks up a bunch of weird
     // paths we don't like, `want_static` may force us, cross compiling almost
     // never has a prebuilt version, and musl is almost always static.
-    if wants_asm ||
-        target.contains("msvc") ||
-        target.contains("pc-windows-gnu") ||
-        want_static ||
-        target != host ||
-        target.contains("musl")
+    if wants_asm
+        || target.contains("msvc")
+        || target.contains("pc-windows-gnu")
+        || want_static
+        || target != host
+        || target.contains("musl")
     {
         return build_zlib(&mut cfg, &target);
     }
@@ -71,7 +72,7 @@ fn main() {
     // otherwise continue below to build things.
     if zlib_installed(&mut cfg) {
         println!("cargo:rustc-link-lib=z");
-        return
+        return;
     }
 
     build_zlib(&mut cfg, &target)
@@ -82,9 +83,7 @@ fn build_zlib(cfg: &mut cc::Build, target: &str) {
     let build = dst.join("build");
     let asm = cfg!(feature = "asm");
 
-    cfg.warnings(false)
-        .out_dir(&build)
-        .include("src/zlib");
+    cfg.warnings(false).out_dir(&build).include("src/zlib");
 
     cfg.file("src/zlib/adler32.c")
         .file("src/zlib/compress.c")
@@ -150,7 +149,8 @@ fn build_zlib(cfg: &mut cc::Build, target: &str) {
         fs::read_to_string("src/zlib/zlib.pc.in")
             .unwrap()
             .replace("@prefix@", dst.to_str().unwrap()),
-    ).unwrap();
+    )
+    .unwrap();
 
     println!("cargo:root={}", dst.to_str().unwrap());
     println!("cargo:include={}/include", dst.to_str().unwrap());
@@ -165,28 +165,27 @@ fn try_vcpkg() -> bool {
 fn try_vcpkg() -> bool {
     // see if there is a vcpkg tree with zlib installed
     match vcpkg::Config::new()
-            .emit_includes(true)
-            .lib_names("zlib", "zlib1")
-            .probe("zlib") {
-        Ok(_) => { true },
+        .emit_includes(true)
+        .lib_names("zlib", "zlib1")
+        .probe("zlib")
+    {
+        Ok(_) => true,
         Err(e) => {
             println!("note, vcpkg did not find zlib: {}", e);
             false
-        },
+        }
     }
 }
 
 fn zlib_installed(cfg: &mut cc::Build) -> bool {
     let compiler = cfg.get_compiler();
     let mut cmd = Command::new(compiler.path());
-    cmd.arg("src/smoke.c")
-        .arg("-o").arg("/dev/null")
-        .arg("-lz");
+    cmd.arg("src/smoke.c").arg("-o").arg("/dev/null").arg("-lz");
 
     println!("running {:?}", cmd);
     if let Ok(status) = cmd.status() {
         if status.success() {
-            return true
+            return true;
         }
     }
 
