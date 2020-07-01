@@ -1,9 +1,7 @@
 #![doc(html_root_url = "https://docs.rs/libz-sys/1.0")]
 #![allow(non_camel_case_types)]
 
-extern crate libc;
-
-use libc::{c_char, c_int, c_long, c_uchar, c_uint, c_ulong, c_void};
+use std::os::raw::{c_char, c_int, c_long, c_uchar, c_uint, c_ulong, c_void};
 
 pub type alloc_func = unsafe extern fn (voidpf, uInt, uInt) -> voidpf;
 pub type Bytef = u8;
@@ -21,8 +19,8 @@ pub type voidpf = *mut c_void;
 pub enum gzFile_s {}
 pub enum internal_state {}
 
-#[cfg(unix)] pub type z_off_t = libc::off_t;
-#[cfg(not(unix))] pub type z_off_t = c_long;
+#[cfg(all(unix, feature = "libc"))] pub type z_off_t = libc::off_t;
+#[cfg(not(all(unix, feature = "libc")))] pub type z_off_t = c_long;
 
 #[repr(C)]
 #[derive(Copy, Clone)]
