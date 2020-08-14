@@ -63,21 +63,7 @@ pub struct z_stream {
 }
 pub type z_streamp = *mut z_stream;
 
-macro_rules! fns {
-    ($($arg:tt)*) => {
-        item! {
-            extern { $($arg)* }
-        }
-    }
-}
-
-macro_rules! item {
-    ($i:item) => {
-        $i
-    };
-}
-
-fns! {
+extern "C" {
     pub fn adler32(adler: uLong, buf: *const Bytef, len: uInt) -> uLong;
     pub fn adler32_combine(adler1: uLong, adler2: uLong, len2: z_off_t) -> uLong;
     pub fn compress(dest: *mut Bytef, destLen: *mut uLongf,
