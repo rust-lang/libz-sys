@@ -10,7 +10,7 @@ documentation = "https://docs.rs/libz-sys"
 description = """
 Low-level bindings to the system libz library (also known as zlib).
 """
-categories = ["external-ffi-bindings"]
+categories = ["compression", "external-ffi-bindings"]
 
 [workspace]
 members = ["systest"]
