@@ -13,7 +13,6 @@ fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     let host = env::var("HOST").unwrap();
     let target = env::var("TARGET").unwrap();
-    let wants_asm = cfg!(feature = "asm");
 
     let host_and_target_contain = |s| host.contains(s) && target.contains(s);
 
@@ -23,8 +22,7 @@ fn main() {
     // (Homebrew, Ports, etc.)
     let want_static =
         cfg!(feature = "static") || env::var("LIBZ_SYS_STATIC").unwrap_or(String::new()) == "1";
-    if !wants_asm &&
-       !want_static &&
+    if !want_static &&
        !target.contains("msvc") && // pkg-config just never works here
        !(host_and_target_contain("apple") ||
          host_and_target_contain("freebsd") ||
@@ -43,14 +41,14 @@ fn main() {
     }
 
     if target.contains("msvc") {
-        if !wants_asm && try_vcpkg() {
+        if try_vcpkg() {
             return;
         }
     }
 
     // All android compilers should come with libz by default, so let's just use
     // the one already there.
-    if !wants_asm && target.contains("android") {
+    if target.contains("android") {
         println!("cargo:rustc-link-lib=z");
         return
     }
@@ -62,8 +60,7 @@ fn main() {
     // MSVC basically never has it preinstalled, MinGW picks up a bunch of weird
     // paths we don't like, `want_static` may force us, cross compiling almost
     // never has a prebuilt version, and musl is almost always static.
-    if wants_asm ||
-        target.contains("msvc") ||
+    if target.contains("msvc") ||
         target.contains("pc-windows-gnu") ||
         want_static ||
         target != host ||
@@ -89,7 +86,6 @@ fn main() {
 fn build_zlib(cfg: &mut cc::Build, target: &str) {
     let dst = PathBuf::from(env::var_os("OUT_DIR").unwrap());
     let build = dst.join("build");
-    let asm = cfg!(feature = "asm");
 
     cfg.warnings(false)
         .out_dir(&build)
@@ -128,30 +124,6 @@ fn build_zlib(cfg: &mut cc::Build, target: &str) {
     }
     if target.contains("solaris") {
         cfg.define("_XOPEN_SOURCE", "700");
-    }
-
-    if asm {
-        if target.contains("windows-msvc") {
-            if target.starts_with("x86_64") {
-                cfg.file("src/zlib/contrib/masmx64/inffasx64.asm")
-                    .file("src/zlib/contrib/masmx64/gvmat64.asm")
-                    .define("ASMV", None)
-                    .define("ASMINF", None);
-            } else if target.starts_with("i686") {
-                cfg.file("src/zlib/contrib/masmx86/inffas32.asm")
-                    .file("src/zlib/contrib/masmx86/match686.asm")
-                    .define("ASMV", None)
-                    .define("ASMINF", None);
-            }
-        }
-        // Notes on x86-64 asm:
-        // - src/zlib/contrib/amd64/amd64-match.S produces segfaults in the
-        //   flate2 testsuite.
-        // - src/zlib/contrib/inflate86/inffas86.c does not improve
-        //   performance, and in fact runs slightly slower.
-        // Notes on i686 asm:
-        // - src/zlib/contrib/inflate86/inffast.S produces segfaults in the
-        //   flate2 testsuite.
     }
 
     cfg.compile("z");

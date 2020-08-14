@@ -33,9 +33,8 @@ vcpkg = "0.2"
 
 [features]
 default = ["libc"]
-# When building from source, enable building optimized assembly routines. As
-# noted in `contrib/README.contrib`, these routines are experimental and not
-# vetted, use at your own risk!
+# Deprecated: the assembly routines are outdated, and either reduce performance
+# or cause segfaults.
 asm = []
 # Enable this feature if you want to have a staticly linked libz
 static = []
