@@ -3,12 +3,12 @@
 
 use std::os::raw::{c_char, c_int, c_long, c_uchar, c_uint, c_ulong, c_void};
 
-pub type alloc_func = unsafe extern fn (voidpf, uInt, uInt) -> voidpf;
+pub type alloc_func = unsafe extern "C" fn(voidpf, uInt, uInt) -> voidpf;
 pub type Bytef = u8;
-pub type free_func = unsafe extern fn (voidpf, voidpf);
+pub type free_func = unsafe extern "C" fn(voidpf, voidpf);
 pub type gzFile = *mut gzFile_s;
-pub type in_func = unsafe extern fn (*mut c_void, *mut *const c_uchar) -> c_uint;
-pub type out_func = unsafe extern fn (*mut c_void, *mut c_uchar, c_uint) -> c_int;
+pub type in_func = unsafe extern "C" fn(*mut c_void, *mut *const c_uchar) -> c_uint;
+pub type out_func = unsafe extern "C" fn(*mut c_void, *mut c_uchar, c_uint) -> c_int;
 pub type uInt = c_uint;
 pub type uLong = c_ulong;
 pub type uLongf = c_ulong;
@@ -19,8 +19,10 @@ pub type voidpf = *mut c_void;
 pub enum gzFile_s {}
 pub enum internal_state {}
 
-#[cfg(all(unix, feature = "libc"))] pub type z_off_t = libc::off_t;
-#[cfg(not(all(unix, feature = "libc")))] pub type z_off_t = c_long;
+#[cfg(all(unix, feature = "libc"))]
+pub type z_off_t = libc::off_t;
+#[cfg(not(all(unix, feature = "libc")))]
+pub type z_off_t = c_long;
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -70,7 +72,9 @@ macro_rules! fns {
 }
 
 macro_rules! item {
-    ($i:item) => ($i)
+    ($i:item) => {
+        $i
+    };
 }
 
 fns! {
