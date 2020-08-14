@@ -1,5 +1,4 @@
 [package]
-
 name = "libz-sys"
 version = "1.0.25"
 authors = ["Alex Crichton <alex@alexcrichton.com>"]
