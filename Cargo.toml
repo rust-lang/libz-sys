@@ -8,7 +8,7 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/alexcrichton/libz-sys"
 documentation = "https://docs.rs/libz-sys"
 description = """
-Bindings to the system libz library (also known as zlib).
+Low-level bindings to the system libz library (also known as zlib).
 """
 categories = ["external-ffi-bindings"]
 
