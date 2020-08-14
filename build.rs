@@ -57,7 +57,7 @@ fn main() {
 
     let mut cfg = cc::Build::new();
 
-    // Whitelist a bunch of situations where we build unconditionally.
+    // Situations where we build unconditionally.
     //
     // MSVC basically never has it preinstalled, MinGW picks up a bunch of weird
     // paths we don't like, `want_static` may force us, cross compiling almost
