@@ -144,12 +144,12 @@ fn build_zlib(cfg: &mut cc::Build, target: &str) {
                     .define("ASMINF", None);
             }
         } else {
-            if target.starts_with("x86_64") {
-                cfg.file("src/zlib/contrib/amd64/amd64-match.S")
-                    .define("ASMV", None);
-                // Note: src/zlib/contrib/inflate86/inffas86.c does not improve
-                // performance, and in fact runs slightly slower.
-            } else if target.starts_with("i686") {
+            // Notes on x86-64 asm:
+            // - src/zlib/contrib/amd64/amd64-match.S produces segfaults in the
+            //   flate2 testsuite.
+            // - src/zlib/contrib/inflate86/inffas86.c does not improve
+            //   performance, and in fact runs slightly slower.
+            if target.starts_with("i686") {
                 cfg.file("src/zlib/contrib/inflate86/inffast.S")
                     .define("ASMINF", None);
             }
