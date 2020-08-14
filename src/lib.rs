@@ -6,6 +6,7 @@ use std::os::raw::{c_char, c_int, c_long, c_uchar, c_uint, c_ulong, c_void};
 pub type alloc_func = unsafe extern "C" fn(voidpf, uInt, uInt) -> voidpf;
 pub type Bytef = u8;
 pub type free_func = unsafe extern "C" fn(voidpf, voidpf);
+#[cfg(all(unix, feature = "libc"))]
 pub type gzFile = *mut gzFile_s;
 pub type in_func = unsafe extern "C" fn(*mut c_void, *mut *const c_uchar) -> c_uint;
 pub type out_func = unsafe extern "C" fn(*mut c_void, *mut c_uchar, c_uint) -> c_int;
@@ -16,13 +17,12 @@ pub type voidp = *mut c_void;
 pub type voidpc = *const c_void;
 pub type voidpf = *mut c_void;
 
+#[cfg(all(unix, feature = "libc"))]
 pub enum gzFile_s {}
 pub enum internal_state {}
 
 #[cfg(all(unix, feature = "libc"))]
 pub type z_off_t = libc::off_t;
-#[cfg(not(all(unix, feature = "libc")))]
-pub type z_off_t = c_long;
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -65,15 +65,7 @@ pub type z_streamp = *mut z_stream;
 
 extern "C" {
     pub fn adler32(adler: uLong, buf: *const Bytef, len: uInt) -> uLong;
-    pub fn adler32_combine(adler1: uLong, adler2: uLong, len2: z_off_t) -> uLong;
-    pub fn compress(dest: *mut Bytef, destLen: *mut uLongf,
-                    source: *const Bytef, sourceLen: uLong) -> c_int;
-    pub fn compress2(dest: *mut Bytef, destLen: *mut uLongf,
-                     source: *const Bytef, sourceLen: uLong,
-                     level: c_int) -> c_int;
-    pub fn compressBound(sourceLen: uLong) -> uLong;
     pub fn crc32(crc: uLong, buf: *const Bytef, len: uInt) -> uLong;
-    pub fn crc32_combine(crc1: uLong, crc2: uLong, len2: z_off_t) -> uLong;
     pub fn deflate(strm: z_streamp, flush: c_int) -> c_int;
     pub fn deflateBound(strm: z_streamp, sourceLen: uLong) -> uLong;
     pub fn deflateCopy(dest: z_streamp, source: z_streamp) -> c_int;
@@ -103,25 +95,6 @@ extern "C" {
                        max_lazy: c_int,
                        nice_length: c_int,
                        max_chain: c_int) -> c_int;
-    pub fn gzdirect(file: gzFile) -> c_int;
-    pub fn gzdopen(fd: c_int, mode: *const c_char) -> gzFile;
-    pub fn gzclearerr(file: gzFile);
-    pub fn gzclose(file: gzFile) -> c_int;
-    pub fn gzeof(file: gzFile) -> c_int;
-    pub fn gzerror(file: gzFile, errnum: *mut c_int) -> *const c_char;
-    pub fn gzflush(file: gzFile, flush: c_int) -> c_int;
-    pub fn gzgetc(file: gzFile) -> c_int;
-    pub fn gzgets(file: gzFile, buf: *mut c_char, len: c_int) -> *mut c_char;
-    pub fn gzopen(path: *const c_char, mode: *const c_char) -> gzFile;
-    pub fn gzputc(file: gzFile, c: c_int) -> c_int;
-    pub fn gzputs(file: gzFile, s: *const c_char) -> c_int;
-    pub fn gzread(file: gzFile, buf: voidp, len: c_uint) -> c_int;
-    pub fn gzrewind(file: gzFile) -> c_int;
-    pub fn gzseek(file: gzFile, offset: z_off_t, whence: c_int) -> z_off_t;
-    pub fn gzsetparams(file: gzFile, level: c_int, strategy: c_int) -> c_int;
-    pub fn gztell(file: gzFile) -> z_off_t;
-    pub fn gzungetc(c: c_int, file: gzFile) -> c_int;
-    pub fn gzwrite(file: gzFile, buf: voidpc, len: c_uint) -> c_int;
     pub fn inflate(strm: z_streamp, flush: c_int) -> c_int;
     pub fn inflateBack(strm: z_streamp,
                        _in: in_func,
@@ -152,10 +125,6 @@ extern "C" {
                                 dictionary: *const Bytef,
                                 dictLength: uInt) -> c_int;
     pub fn inflateSync(strm: z_streamp) -> c_int;
-    pub fn uncompress(dest: *mut Bytef,
-                      destLen: *mut uLongf,
-                      source: *const Bytef,
-                      sourceLen: uLong) -> c_int;
     pub fn zlibCompileFlags() -> uLong;
     pub fn zlibVersion() -> *const c_char;
 
@@ -180,6 +149,41 @@ extern "C" {
 //     pub fn gzclose_r(file: gzFile) -> c_int;
 //     pub fn gzclose_w(file: gzFile) -> c_int;
 //     pub fn gzoffset(file: gzFile) -> z_off_t;
+}
+
+#[cfg(all(unix, feature = "libc"))]
+extern "C" {
+    pub fn adler32_combine(adler1: uLong, adler2: uLong, len2: z_off_t) -> uLong;
+    pub fn compress(dest: *mut Bytef, destLen: *mut uLongf,
+                    source: *const Bytef, sourceLen: uLong) -> c_int;
+    pub fn compress2(dest: *mut Bytef, destLen: *mut uLongf,
+                     source: *const Bytef, sourceLen: uLong,
+                     level: c_int) -> c_int;
+    pub fn compressBound(sourceLen: uLong) -> uLong;
+    pub fn crc32_combine(crc1: uLong, crc2: uLong, len2: z_off_t) -> uLong;
+    pub fn gzdirect(file: gzFile) -> c_int;
+    pub fn gzdopen(fd: c_int, mode: *const c_char) -> gzFile;
+    pub fn gzclearerr(file: gzFile);
+    pub fn gzclose(file: gzFile) -> c_int;
+    pub fn gzeof(file: gzFile) -> c_int;
+    pub fn gzerror(file: gzFile, errnum: *mut c_int) -> *const c_char;
+    pub fn gzflush(file: gzFile, flush: c_int) -> c_int;
+    pub fn gzgetc(file: gzFile) -> c_int;
+    pub fn gzgets(file: gzFile, buf: *mut c_char, len: c_int) -> *mut c_char;
+    pub fn gzopen(path: *const c_char, mode: *const c_char) -> gzFile;
+    pub fn gzputc(file: gzFile, c: c_int) -> c_int;
+    pub fn gzputs(file: gzFile, s: *const c_char) -> c_int;
+    pub fn gzread(file: gzFile, buf: voidp, len: c_uint) -> c_int;
+    pub fn gzrewind(file: gzFile) -> c_int;
+    pub fn gzseek(file: gzFile, offset: z_off_t, whence: c_int) -> z_off_t;
+    pub fn gzsetparams(file: gzFile, level: c_int, strategy: c_int) -> c_int;
+    pub fn gztell(file: gzFile) -> z_off_t;
+    pub fn gzungetc(c: c_int, file: gzFile) -> c_int;
+    pub fn gzwrite(file: gzFile, buf: voidpc, len: c_uint) -> c_int;
+    pub fn uncompress(dest: *mut Bytef,
+                      destLen: *mut uLongf,
+                      source: *const Bytef,
+                      sourceLen: uLong) -> c_int;
 }
 
 pub const Z_NO_FLUSH: c_int = 0;
