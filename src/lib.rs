@@ -6,7 +6,7 @@ use std::os::raw::{c_char, c_int, c_long, c_uchar, c_uint, c_ulong, c_void};
 pub type alloc_func = unsafe extern "C" fn(voidpf, uInt, uInt) -> voidpf;
 pub type Bytef = u8;
 pub type free_func = unsafe extern "C" fn(voidpf, voidpf);
-#[cfg(all(unix, feature = "libc"))]
+#[cfg(feature = "libc")]
 pub type gzFile = *mut gzFile_s;
 pub type in_func = unsafe extern "C" fn(*mut c_void, *mut *const c_uchar) -> c_uint;
 pub type out_func = unsafe extern "C" fn(*mut c_void, *mut c_uchar, c_uint) -> c_int;
@@ -17,11 +17,11 @@ pub type voidp = *mut c_void;
 pub type voidpc = *const c_void;
 pub type voidpf = *mut c_void;
 
-#[cfg(all(unix, feature = "libc"))]
+#[cfg(feature = "libc")]
 pub enum gzFile_s {}
 pub enum internal_state {}
 
-#[cfg(all(unix, feature = "libc"))]
+#[cfg(feature = "libc")]
 pub type z_off_t = libc::off_t;
 
 #[repr(C)]
@@ -151,7 +151,7 @@ extern "C" {
 //     pub fn gzoffset(file: gzFile) -> z_off_t;
 }
 
-#[cfg(all(unix, feature = "libc"))]
+#[cfg(feature = "libc")]
 extern "C" {
     pub fn adler32_combine(adler1: uLong, adler2: uLong, len2: z_off_t) -> uLong;
     pub fn compress(dest: *mut Bytef, destLen: *mut uLongf,
