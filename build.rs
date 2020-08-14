@@ -147,6 +147,8 @@ fn build_zlib(cfg: &mut cc::Build, target: &str) {
             if target.starts_with("x86_64") {
                 cfg.file("src/zlib/contrib/amd64/amd64-match.S")
                     .define("ASMV", None);
+                // Note: src/zlib/contrib/inflate86/inffas86.c does not improve
+                // performance, and in fact runs slightly slower.
             } else if target.starts_with("i686") {
                 cfg.file("src/zlib/contrib/inflate86/inffast.S")
                     .define("ASMINF", None);
