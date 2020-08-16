@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+  VCPKG_DEFAULT_TRIPLET: x64-windows-static
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        channel: [stable, beta, nightly]
+        platform: [ubuntu, macos, windows]
+        args: ["", "--features zlib-ng", "--no-default-features", "--all-features"]
+    runs-on: ${{ matrix.platform }}-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - run: |
+        vcpkg install zlib
+        vcpkg integrate install
+        echo "::set-env name=RUSTFLAGS::-Ctarget-feature=+crt-static"
+      if: ${{ matrix.platform == 'windows' }}
+    - run: rustup default ${{ matrix.channel }}
+    - run: cargo test --verbose ${{ matrix.args }}
+    - run: cargo run --manifest-path systest/Cargo.toml ${{ matrix.args }}
