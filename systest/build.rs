@@ -20,5 +20,6 @@ fn main() {
         | "in_func" | "free_func" | "alloc_func" | "z_streamp" => true,
         _ => false,
     });
+    cfg.skip_field_type(|s, field| s == "z_stream" && (field == "next_in" || field == "msg"));
     cfg.generate("../src/lib.rs", "all.rs");
 }
