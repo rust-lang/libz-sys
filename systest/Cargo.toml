@@ -5,7 +5,7 @@ authors = ["Alex Crichton <alex@alexcrichton.com>"]
 build = "build.rs"
 
 [dependencies]
-libz-sys = { path = ".." }
+libz-sys = { path = "..", default-features = false, features = ["libc"] }
 libc = "0.2"
 
 [build-dependencies]
@@ -13,3 +13,4 @@ ctest = "0.1"
 
 [features]
 libz-static = ["libz-sys/static"]
+zlib-ng = ["libz-sys/zlib-ng"]
