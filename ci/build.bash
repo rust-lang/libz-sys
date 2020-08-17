@@ -16,8 +16,8 @@ required_arg $TARGET_TRIPLE '<Target Triple>'
 
 if [ -z "$RELEASE_BUILD" ]; then
     $CROSS build --target $TARGET_TRIPLE
-    $CROSS build --target $TARGET_TRIPLE --all-features
+    $CROSS build --target $TARGET_TRIPLE --no-features --features zlib-ng
 else
-    $CROSS build --target $TARGET_TRIPLE --all-features --release
+    $CROSS build --target $TARGET_TRIPLE --release
 fi
 
