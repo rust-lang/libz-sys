@@ -161,7 +161,7 @@ fn build_zlib_ng() {
     let includedir = install_dir.join("include");
     let libdir = install_dir.join("lib");
     println!("cargo:rustc-link-search=native={}", libdir.to_str().unwrap());
-    println!("cargo:rustc-link-lib=z");
+    println!("cargo:rustc-link-lib=static=z");
     println!("cargo:root={}", install_dir.to_str().unwrap());
     println!("cargo:include={}", includedir.to_str().unwrap());
 }
