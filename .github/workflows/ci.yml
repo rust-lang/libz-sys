@@ -51,11 +51,9 @@ jobs:
           # MSVC
           - i686-pc-windows-msvc
           - x86_64-pc-windows-msvc
-          # GNU: You typically only need to test Windows GNU if you're
-          # specifically targetting it, and it can cause issues with some
-          # dependencies if you're not so it's disabled by self.
-          # - i686-pc-windows-gnu
-          # - x86_64-pc-windows-gnu
+          # GNU
+          - i686-pc-windows-gnu
+          - x86_64-pc-windows-gnu
 
   macos:
     runs-on: macos-latest
@@ -119,12 +117,12 @@ jobs:
           matrix.target != 'sparc64-unknown-linux-gnu'
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         channel: [stable, beta, nightly]
         target:
-          # WASM, off by default as most rust projects aren't compatible yet.
-          # - wasm32-unknown-emscripten
+          # WASM
+          - wasm32-unknown-emscripten
           # Linux
           - aarch64-unknown-linux-gnu
           - aarch64-unknown-linux-musl
@@ -159,20 +157,18 @@ jobs:
           - i686-linux-android
           - x86_64-linux-android
           # *BSD
-          # The FreeBSD targets can have issues linking so they are disabled
-          # by default.
-          # - i686-unknown-freebsd
-          # - x86_64-unknown-freebsd
+          - i686-unknown-freebsd
+          - x86_64-unknown-freebsd
           - x86_64-unknown-netbsd
-          # DragonFly (Doesn't currently work)
-          # - x86_64-unknown-dragonfly
+          # DragonFly
+          - x86_64-unknown-dragonfly
           # Solaris
           - sparcv9-sun-solaris
           - x86_64-sun-solaris
           # Bare Metal
           # These are no-std embedded targets, so they will only build if your
           # crate is `no_std` compatible.
-          # - thumbv6m-none-eabi
-          # - thumbv7em-none-eabi
-          # - thumbv7em-none-eabihf
-          # - thumbv7m-none-eabi
+          - thumbv6m-none-eabi
+          - thumbv7em-none-eabi
+          - thumbv7em-none-eabihf
+          - thumbv7m-none-eabi
