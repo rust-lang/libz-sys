@@ -10,7 +10,6 @@ jobs:
   install-cross:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
       - uses: XAMPPRocky/get-github-release@v1
         id: cross
         with:
@@ -36,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          depth: 50
+          submodules: true
       - run: ci/set_rust_version.bash ${{ matrix.channel }} ${{ matrix.target }}
         shell: bash
       - run: ci/build.bash cargo ${{ matrix.target }}
@@ -64,7 +63,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          depth: 50
+          submodules: true
 
       - uses: actions/download-artifact@v2
         with:
@@ -96,7 +95,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          depth: 50
+          submodules: true
 
       - name: Download Cross
         uses: actions/download-artifact@v1
