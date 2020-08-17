@@ -1,7 +1,7 @@
 #![allow(bad_style, improper_ctypes)]
 
-extern crate libz_sys;
 extern crate libc;
+extern crate libz_sys;
 
 use libc::*;
 use libz_sys::*;

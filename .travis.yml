@@ -2,7 +2,11 @@ language: rust
 matrix:
   include:
     - rust: stable
+    - env: F=zlib-ng
+      rust: stable
     - os: osx
+    - env: F=zlib-ng
+      os: osx
 
     - env: LIBZ_SYS_STATIC=1
     - env: LIBZ_SYS_STATIC=1
@@ -14,21 +18,15 @@ matrix:
         - ci/run-docker.sh
 
     - rust: beta
-    - rust: nightly
+    - env: F=zlib-ng
+      rust: beta
 
-    - name: "master doc to gh-pages"
+    - rust: nightly
+    - env: F=zlib-ng
       rust: nightly
-      script:
-        - cargo doc --no-deps
-      deploy:
-        provider: script
-        script: curl -LsSf https://git.io/fhJ8n | rustc - && (cd target/doc && ../../rust_out)
-        skip_cleanup: true
-        on:
-          branch: master
 script:
-  - cargo test
-  - cargo run --manifest-path systest/Cargo.toml
+  - cargo test ${F:+--no-default-features} ${F:+--features} $F
+  - cargo run --manifest-path systest/Cargo.toml ${F:+--features} $F
 notifications:
   email:
     on_success: never

@@ -2,10 +2,20 @@ environment:
   matrix:
   - TARGET: x86_64-pc-windows-gnu
     MSYS_BITS: 64
+  - TARGET: x86_64-pc-windows-gnu
+    MSYS_BITS: 64
+    FEAT: zlib-ng
   - TARGET: i686-pc-windows-gnu
     MSYS_BITS: 32
+  - TARGET: i686-pc-windows-gnu
+    MSYS_BITS: 32
+    FEAT: zlib-ng
   - TARGET: x86_64-pc-windows-msvc
+  - TARGET: x86_64-pc-windows-msvc
+    FEAT: zlib-ng
   - TARGET: i686-pc-windows-msvc
+  - TARGET: i686-pc-windows-msvc
+    FEAT: zlib-ng
   - TARGET: x86_64-pc-windows-msvc
     VCPKG_DEFAULT_TRIPLET: x64-windows-static
     RUSTFLAGS: -Ctarget-feature=+crt-static
@@ -20,11 +30,13 @@ install:
   - if defined VCPKG_DEFAULT_TRIPLET git clone https://github.com/Microsoft/vcpkg c:\projects\vcpkg
   - if defined VCPKG_DEFAULT_TRIPLET c:\projects\vcpkg\bootstrap-vcpkg.bat
   - if defined VCPKG_DEFAULT_TRIPLET set VCPKG_ROOT=c:\projects\vcpkg
-  - if defined VCPKG_DEFAULT_TRIPLET echo yes > %VCPKG_ROOT%\Downloads\AlwaysAllowDownloads  
+  - if defined VCPKG_DEFAULT_TRIPLET echo yes > %VCPKG_ROOT%\Downloads\AlwaysAllowDownloads
   - if defined VCPKG_DEFAULT_TRIPLET %VCPKG_ROOT%\vcpkg.exe install zlib
 
 build: false
 
 test_script:
-  - cargo test --target %TARGET%
-  - cargo run --manifest-path systest/Cargo.toml --target %TARGET%
+  - if not defined FEAT cargo test --target %TARGET%
+  - if not defined FEAT cargo run --manifest-path systest/Cargo.toml --target %TARGET%
+  - if defined FEAT cargo test --target %TARGET% --no-default-features --features %FEAT%
+  - if defined FEAT cargo run --manifest-path systest/Cargo.toml --target %TARGET% --features %FEAT%
