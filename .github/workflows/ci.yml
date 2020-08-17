@@ -103,6 +103,8 @@ jobs:
           name: cross-linux-musl
           path: /tmp/
       - run: chmod +x /tmp/cross
+      - run: apt-get install -y gcc-powerpc-linux-gnu
+        if: contains(matrix.target, 'powerpc')
       - run: ci/set_rust_version.bash ${{ matrix.channel }} ${{ matrix.target }}
       - run: ci/build.bash /tmp/cross ${{ matrix.target }}
         # These targets have issues with being tested so they are disabled
