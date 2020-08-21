@@ -1,14 +1,14 @@
-extern crate ctest;
+extern crate ctest2;
 
 use std::env;
 
 fn main() {
-    let mut cfg = ctest::TestGenerator::new();
+    let mut cfg = ctest2::TestGenerator::new();
     cfg.header("zlib.h");
     if let Some(s) = env::var_os("DEP_Z_INCLUDE") {
         cfg.include(s);
     }
-    cfg.type_name(|n, _| {
+    cfg.type_name(|n, _, _| {
         if n == "internal_state" {
             format!("struct {}", n)
         } else {
