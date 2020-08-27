@@ -58,5 +58,5 @@ stock-zlib = []
 # Deprecated: the assembly routines are outdated, and either reduce performance
 # or cause segfaults.
 asm = []
-# Enable this feature if you want to have a staticly linked libz
+# Enable this feature if you want to have a statically linked libz
 static = []
