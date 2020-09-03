@@ -122,7 +122,7 @@ fn build_zlib(cfg: &mut cc::Build, target: &str) {
         cfg.define("_POSIX_SOURCE", None);
         cfg.flag("-fvisibility=hidden");
     }
-    if target.contains("ios") {
+    if target.contains("apple") {
         cfg.define("_C99_SOURCE", None);
     }
     if target.contains("solaris") {
