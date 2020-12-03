@@ -41,8 +41,11 @@ fn main() {
             .cargo_metadata(true)
             .print_system_libs(false)
             .probe("zlib");
-        if zlib.is_ok() {
-            return;
+        match zlib {
+            Ok(_) => return,
+            Err(e) => {
+                println!("cargo-warning={}", e.to_string())
+            }
         }
     }
 
