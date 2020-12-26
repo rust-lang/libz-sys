@@ -107,7 +107,7 @@ fn build_zlib(cfg: &mut cc::Build, target: &str) {
         .file("src/zlib/uncompr.c")
         .file("src/zlib/zutil.c");
 
-    if !cfg!(feature = "libc") || target == "wasm32-unknown-unknown" {
+    if !cfg!(feature = "libc") || target.starts_with("wasm32") {
         cfg.define("Z_SOLO", None);
     } else {
         cfg.file("src/zlib/gzclose.c")
