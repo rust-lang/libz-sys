@@ -53,8 +53,9 @@ fn main() {
     }
 
     // All android compilers should come with libz by default, so let's just use
-    // the one already there.
-    if target.contains("android") {
+    // the one already there. Likewise, Haiku always ships with libz, so we can
+    // link to it even when cross-compiling.
+    if target.contains("android") || target.contains("haiku") {
         println!("cargo:rustc-link-lib=z");
         return;
     }
