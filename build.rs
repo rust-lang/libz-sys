@@ -71,7 +71,6 @@ fn main() {
         || target.contains("pc-windows-gnu")
         || want_static
         || target != host
-        || target.contains("musl")
     {
         return build_zlib(&mut cfg, &target);
     }
