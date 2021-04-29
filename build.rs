@@ -154,11 +154,21 @@ fn build_zlib_ng(_target: &str) {}
 
 #[cfg(feature = "zlib-ng")]
 fn build_zlib_ng(target: &str) {
-    let install_dir = cmake::Config::new("src/zlib-ng")
-        .define("BUILD_SHARED_LIBS", "OFF")
-        .define("ZLIB_COMPAT", "ON")
-        .define("WITH_GZFILEOP", "ON")
-        .build();
+    let install_dir = if target.contains("s390x") {
+        // Enable hardware compression on s390x.
+        cmake::Config::new("src/zlib-ng")
+            .define("BUILD_SHARED_LIBS", "OFF")
+            .define("ZLIB_COMPAT", "ON")
+            .define("WITH_GZFILEOP", "ON")
+            .define("WITH_DFLTCC_DEFLATE", "1")
+            .define("WITH_DFLTCC_INFLATE", "1").build()
+    } else {
+        cmake::Config::new("src/zlib-ng")
+            .define("BUILD_SHARED_LIBS", "OFF")
+            .define("ZLIB_COMPAT", "ON")
+            .define("WITH_GZFILEOP", "ON").build()
+    };
+
     let includedir = install_dir.join("include");
     let libdir = install_dir.join("lib");
     println!(
