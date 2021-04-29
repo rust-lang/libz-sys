@@ -65,8 +65,8 @@ fn main() {
     // Situations where we build unconditionally.
     //
     // MSVC basically never has it preinstalled, MinGW picks up a bunch of weird
-    // paths we don't like, `want_static` may force us, cross compiling almost
-    // never has a prebuilt version, and musl is almost always static.
+    // paths we don't like, `want_static` may force us, and cross compiling almost
+    // never has a prebuilt version.
     if target.contains("msvc")
         || target.contains("pc-windows-gnu")
         || want_static
