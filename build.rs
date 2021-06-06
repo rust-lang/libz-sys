@@ -66,11 +66,11 @@ fn main() {
     //
     // MSVC basically never has it preinstalled, MinGW picks up a bunch of weird
     // paths we don't like, `want_static` may force us, and cross compiling almost
-    // never has a prebuilt version.
+    // never has a prebuilt version, unless system supports "universal" binaries as macOS does.
     if target.contains("msvc")
         || target.contains("pc-windows-gnu")
         || want_static
-        || target != host
+        || (target != host && !host_and_target_contain("darwin"))
     {
         return build_zlib(&mut cfg, &target);
     }
