@@ -163,7 +163,8 @@ fn build_zlib_ng(target: &str) {
         // Enable hardware compression on s390x.
         cmake
             .define("WITH_DFLTCC_DEFLATE", "1")
-            .define("WITH_DFLTCC_INFLATE", "1");
+            .define("WITH_DFLTCC_INFLATE", "1")
+            .cflag("-DDFLTCC_LEVEL_MASK=0x7e");
     }
 
     let install_dir = dbg!(cmake.build());
