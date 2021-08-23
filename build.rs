@@ -167,7 +167,7 @@ fn build_zlib_ng(target: &str) {
             .cflag("-DDFLTCC_LEVEL_MASK=0x7e");
     }
 
-    let install_dir = dbg!(cmake.build());
+    let install_dir = cmake.build();
 
     let includedir = install_dir.join("include");
     let libdir = install_dir.join("lib");
