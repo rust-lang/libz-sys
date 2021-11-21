@@ -67,10 +67,15 @@ fn main() {
     // MSVC basically never has it preinstalled, MinGW picks up a bunch of weird
     // paths we don't like, `want_static` may force us, and cross compiling almost
     // never has a prebuilt version.
+    //
+    // Apple platforms have libz.1.dylib, and it's usually available even when
+    // cross compiling (via fat binary or in the target's Xcode SDK)
+    let cross_compiling = target != host;
+    let apple_to_apple = host.contains("-apple-") && target.contains("-apple-");
     if target.contains("msvc")
         || target.contains("pc-windows-gnu")
         || want_static
-        || target != host
+        || (cross_compiling && !apple_to_apple)
     {
         return build_zlib(&mut cfg, &target);
     }
