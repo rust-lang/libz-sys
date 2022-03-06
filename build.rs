@@ -159,11 +159,21 @@ fn build_zlib_ng(_target: &str) {}
 
 #[cfg(feature = "zlib-ng")]
 fn build_zlib_ng(target: &str) {
-    let install_dir = cmake::Config::new("src/zlib-ng")
+    let mut cmake = cmake::Config::new("src/zlib-ng");
+    cmake
         .define("BUILD_SHARED_LIBS", "OFF")
         .define("ZLIB_COMPAT", "ON")
-        .define("WITH_GZFILEOP", "ON")
-        .build();
+        .define("WITH_GZFILEOP", "ON");
+    if target.contains("s390x") {
+        // Enable hardware compression on s390x.
+        cmake
+            .define("WITH_DFLTCC_DEFLATE", "1")
+            .define("WITH_DFLTCC_INFLATE", "1")
+            .cflag("-DDFLTCC_LEVEL_MASK=0x7e");
+    }
+
+    let install_dir = cmake.build();
+
     let includedir = install_dir.join("include");
     let libdir = install_dir.join("lib");
     println!(
