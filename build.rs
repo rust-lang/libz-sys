@@ -183,11 +183,11 @@ fn build_zlib_ng(target: &str) {
         "cargo:rustc-link-search=native={}",
         libdir.to_str().unwrap()
     );
-    let libname = if target.contains("windows") {
-        if target.contains("msvc") && env::var("OPT_LEVEL").unwrap() == "0" {
-            "zlibd"
+    let libname = if target.contains("windows") && target.contains("msvc") {
+        if env::var("OPT_LEVEL").unwrap() == "0" {
+            "zlibstaticd"
         } else {
-            "zlib"
+            "zlibstatic"
         }
     } else {
         "z"
