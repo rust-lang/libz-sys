@@ -36,6 +36,11 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
+      - if: matrix.mingw_package
+        uses: msys2/setup-msys2@v2
+        with:
+          release: false
+          install: ${{ matrix.mingw_package }}
       - run: ci/set_rust_version.bash ${{ matrix.channel }} ${{ matrix.target }}
         shell: bash
       - run: ci/test.bash cargo ${{ matrix.target }}
@@ -46,10 +51,15 @@ jobs:
       matrix:
         channel: [stable, beta, nightly]
         target:
-          - i686-pc-windows-msvc
           - x86_64-pc-windows-msvc
-          - i686-pc-windows-gnu
           - x86_64-pc-windows-gnu
+          - i686-pc-windows-msvc
+          - i686-pc-windows-gnu
+        include:
+          - target: x86_64-pc-windows-gnu
+            mingw_package: mingw-w64-x86_64-gcc
+          - target: i686-pc-windows-gnu
+            mingw_package: mingw-w64-i686-gcc
 
   macos:
     runs-on: macos-latest
