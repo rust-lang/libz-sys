@@ -177,6 +177,9 @@ fn build_zlib_ng(target: &str) {
     if target.contains("apple") {
         cmake.cflag("-D_DARWIN_C_SOURCE=1");
     }
+    if target == "i686-pc-windows-msvc" {
+        cmake.define("CMAKE_GENERATOR_PLATFORM", "Win32");
+    }
 
     let install_dir = cmake.build();
 
