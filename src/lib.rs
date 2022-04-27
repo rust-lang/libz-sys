@@ -21,8 +21,11 @@ pub type voidpf = *mut c_void;
 pub enum gzFile_s {}
 pub enum internal_state {}
 
-#[cfg(feature = "libc")]
+#[cfg(all(feature = "libc", not(all(target_family = "wasm", target_os = "unknown"))))]
 pub type z_off_t = libc::off_t;
+
+#[cfg(all(feature = "libc", all(target_family = "wasm", target_os = "unknown")))]
+pub type z_off_t = c_long;
 
 #[repr(C)]
 #[derive(Copy, Clone)]
