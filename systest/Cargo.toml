@@ -9,7 +9,7 @@ libz-sys = { path = "..", default-features = false, features = ["libc"] }
 libc = "0.2"
 
 [build-dependencies]
-ctest2 = "0.3"
+ctest2 = "0.4.4"
 
 [features]
 libz-static = ["libz-sys/static"]
