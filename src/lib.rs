@@ -1,4 +1,3 @@
-#![doc(html_root_url = "https://docs.rs/libz-sys/1.0")]
 #![allow(non_camel_case_types)]
 
 use std::os::raw::{c_char, c_int, c_long, c_uchar, c_uint, c_ulong, c_void};
