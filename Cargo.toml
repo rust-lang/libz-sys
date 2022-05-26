@@ -6,7 +6,6 @@ links = "z"
 build = "build.rs"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/rust-lang/libz-sys"
-documentation = "https://docs.rs/libz-sys"
 description = """
 Low-level bindings to the system libz library (also known as zlib).
 """
