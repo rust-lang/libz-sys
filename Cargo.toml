@@ -11,6 +11,7 @@ Low-level bindings to the system libz library (also known as zlib).
 """
 categories = ["compression", "external-ffi-bindings"]
 keywords = ["zlib", "zlib-ng"]
+edition = "2018"
 
 [workspace]
 members = ["systest"]
