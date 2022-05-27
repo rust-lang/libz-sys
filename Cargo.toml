@@ -5,9 +5,7 @@ authors = ["Alex Crichton <alex@alexcrichton.com>", "Josh Triplett <josh@joshtri
 links = "z"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/rust-lang/libz-sys"
-description = """
-Low-level bindings to the system libz library (also known as zlib).
-"""
+description = "Low-level bindings to the system libz library (also known as zlib)."
 categories = ["compression", "external-ffi-bindings"]
 keywords = ["zlib", "zlib-ng"]
 edition = "2018"
