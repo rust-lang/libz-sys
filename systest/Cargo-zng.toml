@@ -1,0 +1,12 @@
+[package]
+name = "systest-zng"
+version = "0.1.0"
+authors = ["Alex Crichton <alex@alexcrichton.com>", "Josh Triplett <josh@joshtriplett.org>"]
+edition = "2018"
+
+[dependencies]
+libz-ng-sys = { path = ".." }
+libc = "0.2"
+
+[build-dependencies]
+ctest2 = "0.4.4"

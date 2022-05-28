@@ -1,14 +1,48 @@
-extern crate ctest2;
-
 use std::env;
 
 fn main() {
+    let zng = env::var("CARGO_PKG_NAME").unwrap() == "systest-zng";
     let mut cfg = ctest2::TestGenerator::new();
-    cfg.header("zlib.h");
-    if let Some(s) = env::var_os("DEP_Z_INCLUDE") {
+    let (header, dep_include) = if zng {
+        ("zlib-ng.h", "DEP_Z_NG_INCLUDE")
+    } else {
+        ("zlib.h", "DEP_Z_INCLUDE")
+    };
+    cfg.header(header);
+    if let Some(s) = env::var_os(dep_include) {
         cfg.include(s);
     }
-    cfg.type_name(|n, _, _| {
+    if zng {
+        println!("cargo:rustc-cfg=zng");
+
+        // The link_name argument does not seem to get populated.
+        cfg.fn_cname(|rust, _| {
+            if rust == "zlibVersion" {
+                return "zlibng_version".to_string();
+            }
+            format!("zng_{}", rust)
+        });
+    }
+    cfg.type_name(move |n, _, _| {
+        if zng {
+            if n == "gz_header" || n == "gz_headerp" {
+                return format!("zng_{}", n);
+            } else if n == "z_stream" {
+                return "zng_stream".to_string();
+            } else if n == "z_streamp" {
+                return "zng_streamp".to_string();
+            } else if n == "z_size" {
+                return "size_t".to_string();
+            } else if n == "z_checksum" {
+                return "uint32_t".to_string();
+            }
+        } else {
+            if n == "z_size" {
+                return "unsigned long".to_string();
+            } else if n == "z_checksum" {
+                return "unsigned long".to_string();
+            }
+        }
         if n == "internal_state" {
             format!("struct {}", n)
         } else {

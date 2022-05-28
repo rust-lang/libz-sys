@@ -33,4 +33,9 @@ $CROSS test --target $TARGET_TRIPLE
 $CROSS run --target $TARGET_TRIPLE --manifest-path systest/Cargo.toml
 echo === zlib-ng build ===
 $CROSS test --target $TARGET_TRIPLE --no-default-features --features zlib-ng
-$CROSS run --target $TARGET_TRIPLE --manifest-path systest/Cargo.toml  --no-default-features --features zlib-ng
+$CROSS run --target $TARGET_TRIPLE --manifest-path systest/Cargo.toml --no-default-features --features zlib-ng
+echo === libz-ng-sys build ===
+mv Cargo-zng.toml Cargo.toml
+mv systest/Cargo-zng.toml systest/Cargo.toml
+$CROSS test --target $TARGET_TRIPLE
+$CROSS run --target $TARGET_TRIPLE --manifest-path systest/Cargo.toml
