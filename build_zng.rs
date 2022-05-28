@@ -14,9 +14,6 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
             .define("WITH_DFLTCC_INFLATE", "1")
             .cflag("-DDFLTCC_LEVEL_MASK=0x7e");
     }
-    if target.contains("apple") {
-        cmake.cflag("-D_DARWIN_C_SOURCE=1");
-    }
     if target == "i686-pc-windows-msvc" {
         cmake.define("CMAKE_GENERATOR_PLATFORM", "Win32");
     }
