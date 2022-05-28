@@ -14,7 +14,7 @@ fn main() {
     let want_ng = cfg!(feature = "zlib-ng") && !cfg!(feature = "stock-zlib");
 
     if want_ng && target != "wasm32-unknown-unknown" {
-        return build_zlib_ng(&target);
+        return build_zlib_ng(&target, true);
     }
 
     // Don't run pkg-config if we're linking statically (we'll build below) and
@@ -153,51 +153,12 @@ fn build_zlib(cfg: &mut cc::Build, target: &str) {
 }
 
 #[cfg(not(feature = "zlib-ng"))]
-fn build_zlib_ng(_target: &str) {}
+fn build_zlib_ng(_target: &str, _compat: bool) {}
 
 #[cfg(feature = "zlib-ng")]
-fn build_zlib_ng(target: &str) {
-    let mut cmake = cmake::Config::new("src/zlib-ng");
-    cmake
-        .define("BUILD_SHARED_LIBS", "OFF")
-        .define("ZLIB_COMPAT", "ON")
-        .define("ZLIB_ENABLE_TESTS", "OFF")
-        .define("WITH_GZFILEOP", "ON");
-    if target.contains("s390x") {
-        // Enable hardware compression on s390x.
-        cmake
-            .define("WITH_DFLTCC_DEFLATE", "1")
-            .define("WITH_DFLTCC_INFLATE", "1")
-            .cflag("-DDFLTCC_LEVEL_MASK=0x7e");
-    }
-    if target.contains("apple") {
-        cmake.cflag("-D_DARWIN_C_SOURCE=1");
-    }
-    if target == "i686-pc-windows-msvc" {
-        cmake.define("CMAKE_GENERATOR_PLATFORM", "Win32");
-    }
-
-    let install_dir = cmake.build();
-
-    let includedir = install_dir.join("include");
-    let libdir = install_dir.join("lib");
-    println!(
-        "cargo:rustc-link-search=native={}",
-        libdir.to_str().unwrap()
-    );
-    let libname = if target.contains("windows") && target.contains("msvc") {
-        if env::var("OPT_LEVEL").unwrap() == "0" {
-            "zlibstaticd"
-        } else {
-            "zlibstatic"
-        }
-    } else {
-        "z"
-    };
-    println!("cargo:rustc-link-lib=static={}", libname);
-    println!("cargo:root={}", install_dir.to_str().unwrap());
-    println!("cargo:include={}", includedir.to_str().unwrap());
-}
+mod build_zng;
+#[cfg(feature = "zlib-ng")]
+use build_zng::build_zlib_ng;
 
 #[cfg(not(target_env = "msvc"))]
 fn try_vcpkg() -> bool {

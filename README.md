@@ -4,6 +4,10 @@ A common library for linking `libz` to rust programs (also known as zlib).
 
 [Documentation](https://docs.rs/libz-sys)
 
+This also serves as the source for the `libz-ng-sys` crate, which builds
+zlib-ng natively (not in zlib-compat mode). See
+[`README-zng.md`](README-zng.md) for details.
+
 # High-level API
 
 This crate provides bindings to the raw low-level C API. For a higher-level
