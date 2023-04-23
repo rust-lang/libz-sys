@@ -18,15 +18,14 @@ fn main() {
     }
 
     // Don't run pkg-config if we're linking statically (we'll build below) and
-    // also don't run pkg-config on macOS/FreeBSD/DragonFly. That'll end up printing
+    // also don't run pkg-config on FreeBSD/DragonFly. That'll end up printing
     // `-L /usr/lib` which wreaks havoc with linking to an OpenSSL in /usr/local/lib
-    // (Homebrew, Ports, etc.)
+    // (Ports, etc.)
     let want_static =
         cfg!(feature = "static") || env::var("LIBZ_SYS_STATIC").unwrap_or(String::new()) == "1";
     if !want_static &&
        !target.contains("msvc") && // pkg-config just never works here
-       !(host_and_target_contain("apple") ||
-         host_and_target_contain("freebsd") ||
+       !(host_and_target_contain("freebsd") ||
          host_and_target_contain("dragonfly"))
     {
         // Don't print system lib dirs to cargo since this interferes with other
