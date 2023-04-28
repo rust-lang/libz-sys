@@ -23,6 +23,15 @@ safe API to work with DEFLATE, zlib, or gzip streams, see
 [`flate2`](https://docs.rs/flate2). `flate2` supports many different
 implementations.
 
+# Development
+
+This crate is built from [the same sources as
+`libz-sys`](https://github.com/rust-lang/libz-sys). From within those sources,
+`Cargo.toml` is the manifest for `libz-sys`, and `Cargo-zng.toml` is the
+manifest for `libz-ng-sys`. The script `./cargo-zng` invokes Cargo on a
+temporary copy of the sources with `Cargo-zng.toml` replacing `Cargo.toml`; for
+instance, use `./cargo-zng publish` to publish `libz-ng-sys`.
+
 # License
 
 This project is licensed under either of

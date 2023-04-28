@@ -43,6 +43,12 @@ if desired.
 
 Building zlib-ng requires `cmake`.
 
+Crates that don't require compatibility with the zlib C API, and use zlib
+exclusively from Rust or support the zlib-ng native C API (prefixed with
+`zng_`) can use [`libz-ng-sys`](https://crates.io/crates/libz-ng-sys) instead,
+which allows zlib and zlib-ng to coexist in the same program. See
+[README-zng.md](README-zng.md) for details.
+
 # License
 
 This project is licensed under either of
