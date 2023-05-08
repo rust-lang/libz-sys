@@ -49,6 +49,13 @@ exclusively from Rust or support the zlib-ng native C API (prefixed with
 which allows zlib and zlib-ng to coexist in the same program. See
 [README-zng.md](README-zng.md) for details.
 
+# Minimum Supported Rust Version (MSRV) Policy
+
+This crate uses the same MSRV policy as the
+[`flate2`](https://crates.io/crates/flate2) crate: This crate supports the
+current and previous stable versions of Rust. Older versions of Rust may work,
+but we don't guarantee these will continue to work.
+
 # License
 
 This project is licensed under either of
