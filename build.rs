@@ -1,7 +1,6 @@
 use std::env;
 use std::fs;
 use std::path::PathBuf;
-use std::process::Command;
 
 fn main() {
     println!("cargo:rerun-if-env-changed=LIBZ_SYS_STATIC");
@@ -181,8 +180,7 @@ fn try_vcpkg() -> bool {
 }
 
 fn zlib_installed(cfg: &mut cc::Build) -> bool {
-    let compiler = cfg.get_compiler();
-    let mut cmd = compiler.to_command();
+    let mut cmd = cfg.get_compiler().to_command();
     cmd.arg("src/smoke.c").arg("-o").arg("/dev/null").arg("-lz");
 
     println!("running {:?}", cmd);
