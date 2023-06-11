@@ -1,4 +1,5 @@
 #![allow(non_camel_case_types)]
+#![allow(non_snake_case)]
 
 use std::os::raw::{c_char, c_int, c_long, c_uchar, c_uint, c_ulong, c_void};
 
@@ -56,8 +57,11 @@ pub type z_off_t = libc::off_t;
 ))]
 pub type z_off_t = c_long;
 
-#[cfg(zng)]
+#[cfg(all(zng, windows, not(target_env = "gnu")))]
 pub type z_off_t = i64;
+
+#[cfg(all(zng, not(all(windows, not(target_env = "gnu")))))]
+pub type z_off_t = libc::off_t;
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -103,12 +107,16 @@ pub type z_streamp = *mut z_stream;
 // can't parse that.
 #[cfg(not(zng))]
 macro_rules! zng_prefix {
-    ($name:expr) => { stringify!($name) }
+    ($name:expr) => {
+        stringify!($name)
+    };
 }
 
 #[cfg(zng)]
 macro_rules! zng_prefix {
-    ($name:expr) => { concat!("zng_", stringify!($name)) }
+    ($name:expr) => {
+        concat!("zng_", stringify!($name))
+    };
 }
 
 extern "C" {
@@ -124,24 +132,6 @@ extern "C" {
     pub fn deflateCopy(dest: z_streamp, source: z_streamp) -> c_int;
     #[link_name = zng_prefix!(deflateEnd)]
     pub fn deflateEnd(strm: z_streamp) -> c_int;
-    #[link_name = zng_prefix!(deflateInit_)]
-    pub fn deflateInit_(
-        strm: z_streamp,
-        level: c_int,
-        version: *const c_char,
-        stream_size: c_int,
-    ) -> c_int;
-    #[link_name = zng_prefix!(deflateInit2_)]
-    pub fn deflateInit2_(
-        strm: z_streamp,
-        level: c_int,
-        method: c_int,
-        windowBits: c_int,
-        memLevel: c_int,
-        strategy: c_int,
-        version: *const c_char,
-        stream_size: c_int,
-    ) -> c_int;
     #[link_name = zng_prefix!(deflateParams)]
     pub fn deflateParams(strm: z_streamp, level: c_int, strategy: c_int) -> c_int;
     #[link_name = zng_prefix!(deflatePrime)]
@@ -176,29 +166,12 @@ extern "C" {
     ) -> c_int;
     #[link_name = zng_prefix!(inflateBackEnd)]
     pub fn inflateBackEnd(strm: z_streamp) -> c_int;
-    #[link_name = zng_prefix!(inflateBackInit_)]
-    pub fn inflateBackInit_(
-        strm: z_streamp,
-        windowBits: c_int,
-        window: *mut c_uchar,
-        version: *const c_char,
-        stream_size: c_int,
-    ) -> c_int;
     #[link_name = zng_prefix!(inflateCopy)]
     pub fn inflateCopy(dest: z_streamp, source: z_streamp) -> c_int;
     #[link_name = zng_prefix!(inflateEnd)]
     pub fn inflateEnd(strm: z_streamp) -> c_int;
     #[link_name = zng_prefix!(inflateGetHeader)]
     pub fn inflateGetHeader(strm: z_streamp, head: gz_headerp) -> c_int;
-    #[link_name = zng_prefix!(inflateInit_)]
-    pub fn inflateInit_(strm: z_streamp, version: *const c_char, stream_size: c_int) -> c_int;
-    #[link_name = zng_prefix!(inflateInit2_)]
-    pub fn inflateInit2_(
-        strm: z_streamp,
-        windowBits: c_int,
-        version: *const c_char,
-        stream_size: c_int,
-    ) -> c_int;
     #[link_name = zng_prefix!(inflateMark)]
     pub fn inflateMark(strm: z_streamp) -> c_long;
     #[link_name = zng_prefix!(inflatePrime)]
@@ -243,6 +216,112 @@ extern "C" {
 extern "C" {
     #[link_name = if_zng!("zlibng_version", "zlibVersion")]
     pub fn zlibVersion() -> *const c_char;
+}
+
+#[cfg(not(zng))]
+extern "C" {
+    pub fn deflateInit_(
+        strm: z_streamp,
+        level: c_int,
+        version: *const c_char,
+        stream_size: c_int,
+    ) -> c_int;
+    pub fn deflateInit2_(
+        strm: z_streamp,
+        level: c_int,
+        method: c_int,
+        windowBits: c_int,
+        memLevel: c_int,
+        strategy: c_int,
+        version: *const c_char,
+        stream_size: c_int,
+    ) -> c_int;
+    pub fn inflateBackInit_(
+        strm: z_streamp,
+        windowBits: c_int,
+        window: *mut c_uchar,
+        version: *const c_char,
+        stream_size: c_int,
+    ) -> c_int;
+    pub fn inflateInit_(strm: z_streamp, version: *const c_char, stream_size: c_int) -> c_int;
+    pub fn inflateInit2_(
+        strm: z_streamp,
+        windowBits: c_int,
+        version: *const c_char,
+        stream_size: c_int,
+    ) -> c_int;
+}
+
+#[cfg(zng)]
+extern "C" {
+    pub fn zng_deflateInit(strm: z_streamp, level: c_int) -> c_int;
+    pub fn zng_deflateInit2(
+        strm: z_streamp,
+        level: c_int,
+        method: c_int,
+        windowBits: c_int,
+        memLevel: c_int,
+        strategy: c_int,
+    ) -> c_int;
+    pub fn zng_inflateBackInit(strm: z_streamp, windowBits: c_int, window: *mut c_uchar) -> c_int;
+    pub fn zng_inflateInit(strm: z_streamp) -> c_int;
+    pub fn zng_inflateInit2(strm: z_streamp, windowBits: c_int) -> c_int;
+}
+
+// These methods are required to keep BC with original zlib API since zlib-ng 2.1 that changed API
+#[cfg(zng)]
+#[inline(always)]
+pub unsafe fn inflateInit2_(
+    strm: z_streamp,
+    windowBits: c_int,
+    _version: *const c_char,
+    _stream_size: c_int,
+) -> c_int {
+    zng_inflateInit2(strm, windowBits)
+}
+
+#[cfg(zng)]
+#[inline(always)]
+pub unsafe fn inflateInit_(strm: z_streamp, _version: *const c_char, _stream_size: c_int) -> c_int {
+    zng_inflateInit(strm)
+}
+
+#[cfg(zng)]
+#[inline(always)]
+pub unsafe fn inflateBackInit_(
+    strm: z_streamp,
+    windowBits: c_int,
+    window: *mut c_uchar,
+    _version: *const c_char,
+    _stream_size: c_int,
+) -> c_int {
+    zng_inflateBackInit(strm, windowBits, window)
+}
+
+#[cfg(zng)]
+#[inline(always)]
+pub unsafe fn deflateInit2_(
+    strm: z_streamp,
+    level: c_int,
+    method: c_int,
+    windowBits: c_int,
+    memLevel: c_int,
+    strategy: c_int,
+    _version: *const c_char,
+    _stream_size: c_int,
+) -> c_int {
+    zng_deflateInit2(strm, level, method, windowBits, memLevel, strategy)
+}
+
+#[cfg(zng)]
+#[inline]
+pub unsafe fn deflateInit_(
+    strm: z_streamp,
+    level: c_int,
+    _version: *const c_char,
+    _stream_size: c_int,
+) -> c_int {
+    zng_deflateInit(strm, level)
 }
 
 #[cfg(any(zng, feature = "libc"))]
