@@ -162,8 +162,7 @@ fn try_vcpkg() -> bool {
     // see if there is a vcpkg tree with zlib installed
     match vcpkg::Config::new()
         .emit_includes(true)
-        .lib_names("zlib", "zlib1")
-        .probe("zlib")
+        .find_package("zlib")
     {
         Ok(_) => true,
         Err(e) => {
