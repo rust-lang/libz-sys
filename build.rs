@@ -23,7 +23,6 @@ fn main() {
     let want_static =
         cfg!(feature = "static") || env::var("LIBZ_SYS_STATIC").unwrap_or(String::new()) == "1";
     if !want_static &&
-       !target.contains("msvc") && // pkg-config just never works here
        !(host_and_target_contain("freebsd") ||
          host_and_target_contain("dragonfly"))
     {
