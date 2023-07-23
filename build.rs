@@ -42,7 +42,7 @@ fn main() {
         }
     }
 
-    if target.contains("msvc") {
+    if target.contains("windows") {
         if try_vcpkg() {
             return;
         }
@@ -158,18 +158,11 @@ mod build_zng;
 #[cfg(feature = "zlib-ng")]
 use build_zng::build_zlib_ng;
 
-#[cfg(not(target_env = "msvc"))]
-fn try_vcpkg() -> bool {
-    false
-}
-
-#[cfg(target_env = "msvc")]
 fn try_vcpkg() -> bool {
     // see if there is a vcpkg tree with zlib installed
     match vcpkg::Config::new()
         .emit_includes(true)
-        .lib_names("zlib", "zlib1")
-        .probe("zlib")
+        .find_package("zlib")
     {
         Ok(_) => true,
         Err(e) => {
