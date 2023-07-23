@@ -39,3 +39,33 @@ mv Cargo-zng.toml Cargo.toml
 mv systest/Cargo-zng.toml systest/Cargo.toml
 $CROSS test --target $TARGET_TRIPLE
 $CROSS run --target $TARGET_TRIPLE --manifest-path systest/Cargo.toml
+
+echo === flate2 validation ===
+set -x
+git clone https://github.com/rust-lang/flate2-rs flate2
+git worktree add flate2/libz-sys
+git worktree add flate2/libz-ng-sys
+
+cd flate2
+(cd libz-sys
+  git submodule update --init
+)
+(cd libz-ng-sys
+  git submodule update --init
+  mv systest/Cargo-zng.toml systest/Cargo.toml
+  mv Cargo-zng.toml Cargo.toml
+)
+
+echo "[workspace]" >> Cargo.toml
+mkdir .cargo
+cat <<EOF >.cargo/config.toml
+[patch."crates-io"]
+libz-sys = { path = "./libz-sys" }
+libz-ng-sys = { path = "./libz-ng-sys" }
+EOF
+
+set -x
+$CROSS test --features zlib --target $TARGET_TRIPLE
+$CROSS test --features zlib-default --no-default-features --target $TARGET_TRIPLE
+$CROSS test --features zlib-ng --no-default-features --target $TARGET_TRIPLE
+$CROSS test --features zlib-ng-compat --no-default-features --target $TARGET_TRIPLE

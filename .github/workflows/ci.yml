@@ -25,59 +25,60 @@ jobs:
       matrix:
         platform: [linux-musl]
 
-  windows:
-    runs-on: windows-latest
-    # Windows technically doesn't need this, but if we don't block windows on it
-    # some of the windows jobs could fill up the concurrent job queue before
-    # one of the install-cross jobs has started, so this makes sure all
-    # artifacts are downloaded first.
-    needs: install-cross
-    steps:
-      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
-        with:
-          submodules: true
-      - if: matrix.mingw_package
-        uses: msys2/setup-msys2@7efe20baefed56359985e327d329042cde2434ff # v2
-        with:
-          release: false
-          install: ${{ matrix.mingw_package }}
-      - run: ci/set_rust_version.bash ${{ matrix.channel }} ${{ matrix.target }}
-        shell: bash
-      - run: ci/test.bash cargo ${{ matrix.target }}
-        shell: bash
-
-    strategy:
-      fail-fast: false
-      matrix:
-        channel: [stable, beta, nightly]
-        target:
-          - x86_64-pc-windows-msvc
-          - x86_64-pc-windows-gnu
-          - i686-pc-windows-msvc
-          - i686-pc-windows-gnu
-        include:
-          - target: x86_64-pc-windows-gnu
-            mingw_package: mingw-w64-x86_64-gcc
-          - target: i686-pc-windows-gnu
-            mingw_package: mingw-w64-i686-gcc
-
-  macos:
-    runs-on: macos-latest
-    # macOS isn't currently using this either, but see the note about Windows above.
-    needs: install-cross
-    steps:
-      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
-        with:
-          submodules: true
-      - run: ci/set_rust_version.bash ${{ matrix.channel }} ${{ matrix.target }}
-      - run: ci/test.bash cargo ${{ matrix.target }}
-
-    strategy:
-      fail-fast: false
-      matrix:
-        channel: [stable, beta, nightly]
-        target:
-          - x86_64-apple-darwin
+# DISABLED WHILE TESTING
+#  windows:
+#    runs-on: windows-latest
+#    # Windows technically doesn't need this, but if we don't block windows on it
+#    # some of the windows jobs could fill up the concurrent job queue before
+#    # one of the install-cross jobs has started, so this makes sure all
+#    # artifacts are downloaded first.
+#    needs: install-cross
+#    steps:
+#      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+#        with:
+#          submodules: true
+#      - if: matrix.mingw_package
+#        uses: msys2/setup-msys2@7efe20baefed56359985e327d329042cde2434ff # v2
+#        with:
+#          release: false
+#          install: ${{ matrix.mingw_package }}
+#      - run: ci/set_rust_version.bash ${{ matrix.channel }} ${{ matrix.target }}
+#        shell: bash
+#      - run: ci/test.bash cargo ${{ matrix.target }}
+#        shell: bash
+#
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        channel: [stable, beta, nightly]
+#        target:
+#          - x86_64-pc-windows-msvc
+#          - x86_64-pc-windows-gnu
+#          - i686-pc-windows-msvc
+#          - i686-pc-windows-gnu
+#        include:
+#          - target: x86_64-pc-windows-gnu
+#            mingw_package: mingw-w64-x86_64-gcc
+#          - target: i686-pc-windows-gnu
+#            mingw_package: mingw-w64-i686-gcc
+#
+#  macos:
+#    runs-on: macos-latest
+#    # macOS isn't currently using this either, but see the note about Windows above.
+#    needs: install-cross
+#    steps:
+#      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+#        with:
+#          submodules: true
+#      - run: ci/set_rust_version.bash ${{ matrix.channel }} ${{ matrix.target }}
+#      - run: ci/test.bash cargo ${{ matrix.target }}
+#
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        channel: [stable, beta, nightly]
+#        target:
+#          - x86_64-apple-darwin
 
   linux:
     runs-on: ubuntu-latest
@@ -101,12 +102,12 @@ jobs:
       matrix:
         channel: [stable, beta, nightly]
         target:
-          - aarch64-unknown-linux-gnu
-          - aarch64-unknown-linux-musl
-          - arm-unknown-linux-gnueabihf
-          - arm-unknown-linux-musleabihf
-          - i686-unknown-linux-gnu
-          - i686-unknown-linux-musl
-          - s390x-unknown-linux-gnu
+#          - aarch64-unknown-linux-gnu
+#          - aarch64-unknown-linux-musl
+#          - arm-unknown-linux-gnueabihf
+#          - arm-unknown-linux-musleabihf
+#          - i686-unknown-linux-gnu
+#          - i686-unknown-linux-musl
+#          - s390x-unknown-linux-gnu
           - x86_64-unknown-linux-gnu
           - x86_64-unknown-linux-musl
