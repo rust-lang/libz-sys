@@ -2,7 +2,7 @@
 set -eu
 trap 'rm -rf "$tempdir"' 0 INT
 tempdir="$(mktemp -d)"
-cargo package -l --allow-dirty | grep -v '^Cargo\.toml\.orig$' | tar --verbatim-files-from --files-from=- -cf - | tar -C "$tempdir" -xf -
+cargo package -l --allow-dirty | grep -v '^Cargo\.toml\.orig$' | tar --files-from=- -cf - | tar -C "$tempdir" -xf -
 cp Cargo-zng.toml "$tempdir/Cargo.toml"
 cp -a systest "$tempdir/systest"
 mv "$tempdir/systest/Cargo-zng.toml" "$tempdir/systest/Cargo.toml"
