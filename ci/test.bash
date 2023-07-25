@@ -68,3 +68,9 @@ $CROSS test --features zlib --target $TARGET_TRIPLE
 $CROSS test --features zlib-default --no-default-features --target $TARGET_TRIPLE
 $CROSS test --features zlib-ng --no-default-features --target $TARGET_TRIPLE
 $CROSS test --features zlib-ng-compat --no-default-features --target $TARGET_TRIPLE
+
+if rustup component list | grep clippy &>/dev/null; then
+  git clone https://github.com/ruffle-rs/ruffle
+  cd ruffle
+  $CROSS clippy --target $TARGET_TRIPLE
+fi
