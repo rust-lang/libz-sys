@@ -22,9 +22,14 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
 
     let includedir = install_dir.join("include");
     let libdir = install_dir.join("lib");
+    let libdir64 = install_dir.join("lib64");
     println!(
         "cargo:rustc-link-search=native={}",
         libdir.to_str().unwrap()
+    );
+    println!(
+        "cargo:rustc-link-search=native={}",
+        libdir64.to_str().unwrap()
     );
     let mut debug_suffix = "";
     let libname = if target.contains("windows") && target.contains("msvc") {
