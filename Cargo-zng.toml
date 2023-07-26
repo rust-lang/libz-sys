@@ -1,6 +1,6 @@
 [package]
 name = "libz-ng-sys"
-version = "1.1.11"
+version = "1.1.12"
 authors = ["Alex Crichton <alex@alexcrichton.com>", "Josh Triplett <josh@joshtriplett.org>", "Sebastian Thiel <sebastian.thiel@icloud.com>"]
 links = "z-ng"
 license = "MIT OR Apache-2.0"
