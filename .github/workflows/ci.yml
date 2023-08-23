@@ -110,3 +110,4 @@ jobs:
           - s390x-unknown-linux-gnu
           - x86_64-unknown-linux-gnu
           - x86_64-unknown-linux-musl
+          - aarch64-linux-android
