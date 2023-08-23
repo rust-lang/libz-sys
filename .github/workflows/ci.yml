@@ -128,6 +128,8 @@ jobs:
       - run: chmod +x /tmp/cross
       - run: ci/set_rust_version.bash ${{ matrix.channel }} ${{ matrix.target }}
 
+      # test libz-ng-sys
+      - run: mv Cargo-zng.toml Cargo.toml
       - run: |
           export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH && \
           export CC_aarch64_linux_android=aarch64-linux-android28-clang && \
