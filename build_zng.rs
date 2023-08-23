@@ -17,9 +17,6 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
     if target == "i686-pc-windows-msvc" {
         cmake.define("CMAKE_GENERATOR_PLATFORM", "Win32");
     }
-    if target.contains("android") {
-        cmake.define("CMAKE_ANDROID_NDK", env::var("ANDROID_NDK_HOME").unwrap());
-    }
 
     let install_dir = cmake.build();
 
