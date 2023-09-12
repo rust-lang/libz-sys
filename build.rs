@@ -150,6 +150,8 @@ fn build_zlib(cfg: &mut cc::Build, target: &str) {
         fs::read_to_string("src/zlib/zlib.pc.in")
             .unwrap()
             .replace("@prefix@", dst.to_str().unwrap())
+            .replace("@includedir@", "${prefix}/include")
+            .replace("@libdir@", "${prefix}/lib")
             .replace("@VERSION@", version),
     )
     .unwrap();
