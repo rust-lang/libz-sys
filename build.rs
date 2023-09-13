@@ -137,11 +137,22 @@ fn build_zlib(cfg: &mut cc::Build, target: &str) {
     fs::copy("src/zlib/zconf.h", dst.join("include/zconf.h")).unwrap();
 
     fs::create_dir_all(lib.join("pkgconfig")).unwrap();
+    let zlib_h = fs::read_to_string(dst.join("include/zlib.h")).unwrap();
+    let version = zlib_h
+        .lines()
+        .find(|l| l.contains("ZLIB_VERSION"))
+        .unwrap()
+        .split("\"")
+        .nth(1)
+        .unwrap();
     fs::write(
         lib.join("pkgconfig/zlib.pc"),
         fs::read_to_string("src/zlib/zlib.pc.in")
             .unwrap()
-            .replace("@prefix@", dst.to_str().unwrap()),
+            .replace("@prefix@", dst.to_str().unwrap())
+            .replace("@includedir@", "${prefix}/include")
+            .replace("@libdir@", "${prefix}/lib")
+            .replace("@VERSION@", version),
     )
     .unwrap();
 
