@@ -336,7 +336,7 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
             .flag("-DDFLTCC_LEVEL_MASK=0x7e");
     }
 
-    let tf = env::var("CARGO_CFG_TARGET_FEATURE").expect("failed to retrieve target features");
+    let tf = env::var("CARGO_CFG_TARGET_FEATURE").unwrap_or_default();
     let target_features: BTreeSet<_> = tf.split(',').collect();
 
     let arch = env::var("CARGO_CFG_TARGET_ARCH").expect("failed to retrieve target arch");
