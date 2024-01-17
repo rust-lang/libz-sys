@@ -550,19 +550,19 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
 
     fs::create_dir_all(&include).unwrap();
 
-    fs::copy(
-        "src/zlib-ng/zlib_name_mangling.h.empty",
-        include.join("zlib_name_mangling.h"),
-    )
-    .unwrap();
-
-    let zlib_h = if compat {
+    let (zlib_h, mangle) = if compat {
         fs::copy("src/zlib-ng/zconf.h.in", include.join("zconf.h")).unwrap();
-        "zlib.h"
+        ("zlib.h", "zlib_name_mangling.h")
     } else {
         fs::copy("src/zlib-ng/zconf-ng.h.in", include.join("zconf-ng.h")).unwrap();
-        "zlib-ng.h"
+        ("zlib-ng.h", "zlib_name_mangling-ng.h")
     };
+
+    fs::copy(
+        "src/zlib-ng/zlib_name_mangling.h.empty",
+        include.join(mangle),
+    )
+    .unwrap();
 
     let version = {
         let mut version = None;
