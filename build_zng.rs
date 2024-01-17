@@ -437,6 +437,8 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
             // Support runtime detection on linux/android
             'caps: {
                 if matches!(target_os.as_str(), "linux" | "android") {
+                    ctx.append.defines.insert("HAVE_SYS_AUXV_H");
+
                     if is_aarch64 {
                         ctx.compile_check(
                             "arm",
