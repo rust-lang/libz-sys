@@ -313,12 +313,10 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
             .define("HAVE_BUILTIN_CTZLL", None)
             .define("HAVE_THREAD_LOCAL", None)
             .define("HAVE_VISIBILITY_HIDDEN", None)
-            .define("HAVE_VISIBILITY_INTERNAL", None);
-
-        if env::var("CARGO_CFG_TARGET_POINTER_WIDTH").as_deref() == Ok("64") {
-            cfg.define("_LARGEFILE64_SOURCE", "1")
-                .define("__USE_LARGEFILE64", None);
-        }
+            .define("HAVE_VISIBILITY_INTERNAL", None)
+            .define("Z_HAVE_UNISTD_H", None)
+            .define("_LARGEFILE64_SOURCE", "1")
+            .define("__USE_LARGEFILE64", None);
     }
 
     if !target.contains("windows") {
