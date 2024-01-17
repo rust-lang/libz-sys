@@ -329,9 +329,7 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
         cfg.define("_C99_SOURCE", None);
     } else if target.contains("solaris") {
         cfg.define("_XOPEN_SOURCE", "700");
-    }
-
-    if target.contains("s390x") {
+    } else if target.contains("s390x") {
         // Enable hardware compression on s390x.
         cfg.file("src/zlib-ng/arch/s390/dfltcc_deflate.c")
             .flag("-DDFLTCC_LEVEL_MASK=0x7e");
