@@ -314,8 +314,7 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
             .define("HAVE_THREAD_LOCAL", None)
             .define("HAVE_VISIBILITY_HIDDEN", None)
             .define("HAVE_VISIBILITY_INTERNAL", None)
-            .define("Z_HAVE_UNISTD_H", None)
-            .define("_FILE_OFFSET_BITS", "64")
+            .define("z_off_t", "int64_t")
             .define("_LARGEFILE64_SOURCE", "1")
             .define("__USE_LARGEFILE64", None);
     }
