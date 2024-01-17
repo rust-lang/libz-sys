@@ -570,8 +570,7 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
             Path::new(&format!("src/zlib-ng/{zlib_h}.in")),
             &include.join(zlib_h),
             |line| {
-                if line.contains("ZLIBNG_VERSION") {
-                    eprintln!("cargo:warning=uhm what '{line}'");
+                if line.contains("ZLIBNG_VERSION") && line.contains("#define") {
                     version = Some(line.split('"').nth(1).unwrap().to_owned());
                 }
             },
