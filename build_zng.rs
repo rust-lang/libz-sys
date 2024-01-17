@@ -85,14 +85,16 @@ struct Ctx<'ctx> {
 
 impl<'ctx> Ctx<'ctx> {
     fn enable(&mut self, tf: TargetFeature) -> bool {
-        if let Some(enabled) = self.enabled {
-            if !enabled.contains(tf.check) {
-                return false;
-            }
-        }
+        let enabled = self
+            .enabled
+            .as_ref()
+            .expect("target features not set for ctx")
+            .contains(tf.check);
 
-        self.push(tf);
-        true
+        if enabled {
+            self.push(tf);
+        }
+        enabled
     }
 
     fn compile_check(&mut self, subdir: &str, tf: TargetFeature) -> bool {
@@ -226,7 +228,7 @@ impl<'ctx> Ctx<'ctx> {
 
 impl<'ctx> Drop for Ctx<'ctx> {
     fn drop(&mut self) {
-        let app = std::mem::replace(&mut self.append, Default::default());
+        let app = std::mem::take(&mut self.append);
         for flag in app.flags {
             self.cfg.flag(flag);
         }
