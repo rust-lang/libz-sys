@@ -300,11 +300,13 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
 
     let msvc = target.ends_with("pc-windows-msvc");
 
+    cfg.std("c11");
+
     // This can be made configurable if it is an issue but most of these would
     // only fail if the user was on a decade old+ libc impl
     if !msvc {
-        cfg.std("c11")
-            .define("HAVE_ALIGNED_ALLOC", None)
+        cfg.define("HAVE_ALIGNED_ALLOC", None)
+            .define("HAVE_ATTRIBUTE_ALIGNED", None)
             .define("HAVE_BUILTIN_CTZ", None)
             .define("HAVE_BUILTIN_CTZLL", None)
             .define("HAVE_POSIX_MEMALIGN", None)
@@ -326,9 +328,6 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
     if target.contains("solaris") {
         cfg.define("_XOPEN_SOURCE", "700");
     }
-
-    // GCC/clang have had this for who knows how long
-    cfg.define("HAVE_ATTRIBUTE_ALIGNED", None);
 
     if target.contains("s390x") {
         // Enable hardware compression on s390x.
