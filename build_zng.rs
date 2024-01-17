@@ -18,7 +18,9 @@ fn append(cfg: &mut cc::Build, root: Option<&str>, files: impl IntoIterator<Item
 /// Replicate the behavior of cmake/make/configure of stripping out the
 /// @ZLIB_SYMBOL_PREFIX@ since we don't want or need it
 fn strip_symbol_prefix(input: &Path, output: &Path, mut on_line: impl FnMut(&str)) {
-    let contents = fs::read_to_string(input).unwrap();
+    let contents = fs::read_to_string(input)
+        .map_err(|err| format!("failed to read {input:?}: {err}"))
+        .unwrap();
     let mut h = fs::File::create(output).expect("failed to create zlib include");
 
     use std::io::IoSlice;
@@ -309,23 +311,26 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
             .define("HAVE_ATTRIBUTE_ALIGNED", None)
             .define("HAVE_BUILTIN_CTZ", None)
             .define("HAVE_BUILTIN_CTZLL", None)
-            .define("HAVE_POSIX_MEMALIGN", None)
             .define("HAVE_THREAD_LOCAL", None)
             .define("HAVE_VISIBILITY_HIDDEN", None)
             .define("HAVE_VISIBILITY_INTERNAL", None);
+
+        if env::var("CARGO_CFG_TARGET_POINTER_WIDTH").as_deref() == Ok("64") {
+            cfg.define("_LARGEFILE64_SOURCE", "1")
+                .define("__USE_LARGEFILE64", None);
+        }
     }
 
     if !target.contains("windows") {
         cfg.define("STDC", None)
-            .define("_LARGEFILE64_SOURCE", "1")
-            .define("__USE_LARGEFILE64", None)
             .define("_POSIX_SOURCE", None)
+            .define("HAVE_POSIX_MEMALIGN", None)
             .flag("-fvisibility=hidden");
     }
+
     if target.contains("apple") {
         cfg.define("_C99_SOURCE", None);
-    }
-    if target.contains("solaris") {
+    } else if target.contains("solaris") {
         cfg.define("_XOPEN_SOURCE", "700");
     }
 
