@@ -314,7 +314,6 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
             .define("HAVE_THREAD_LOCAL", None)
             .define("HAVE_VISIBILITY_HIDDEN", None)
             .define("HAVE_VISIBILITY_INTERNAL", None)
-            .define("z_off_t", "int64_t")
             .define("_LARGEFILE64_SOURCE", "1")
             .define("__USE_LARGEFILE64", None);
     }
@@ -555,13 +554,33 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
 
     fs::create_dir_all(&include).unwrap();
 
-    let (zlib_h, mangle) = if compat {
-        fs::copy("src/zlib-ng/zconf.h.in", include.join("zconf.h")).unwrap();
-        ("zlib.h", "zlib_name_mangling.h")
+    let (zconf_h, zlib_h, mangle) = if compat {
+        ("zconf.h", "zlib.h", "zlib_name_mangling.h")
     } else {
         fs::copy("src/zlib-ng/zconf-ng.h.in", include.join("zconf-ng.h")).unwrap();
-        ("zlib-ng.h", "zlib_name_mangling-ng.h")
+        ("zconf-ng.h", "zlib-ng.h", "zlib_name_mangling-ng.h")
     };
+
+    if msvc {
+        fs::copy(format!("src/zlib-ng/{zconf_h}.in"), include.join(zconf_h)).unwrap();
+    } else {
+        // If we don't do this then _some_ 32-bit targets will have an incorrect
+        // size for off_t if they don't _also_ define `HAVE_UNISTD_H`, so we
+        // copy configure/cmake here
+        let new_zconf = fs::read_to_string(format!("src/zlib-ng/{zconf_h}.in"))
+            .expect("failed to read zconf.h.in")
+            .replace(
+                "#ifdef HAVE_UNISTD_H    /* may be set to #if 1 by configure/cmake/etc */",
+                &format!(
+                    "#if 1    /* was set to #if 1 by {}:{}:{} */",
+                    file!(),
+                    line!(),
+                    column!()
+                ),
+            );
+
+        fs::write(include.join(zconf_h), new_zconf).unwrap();
+    }
 
     fs::copy(
         "src/zlib-ng/zlib_name_mangling.h.empty",
