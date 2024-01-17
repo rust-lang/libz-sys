@@ -17,11 +17,12 @@ fn append(cfg: &mut cc::Build, root: Option<&str>, files: impl IntoIterator<Item
 
 /// Replicate the behavior of cmake/make/configure of stripping out the
 /// @ZLIB_SYMBOL_PREFIX@ since we don't want or need it
-fn strip_symbol_prefix(input: &Path, output: &Path, mut on_line: impl FnMut(&str)) {
+fn strip_symbol_prefix(input: &Path, output: &Path, get_version: bool) -> String {
     let contents = fs::read_to_string(input)
         .map_err(|err| format!("failed to read {input:?}: {err}"))
         .unwrap();
-    let mut h = fs::File::create(output).expect("failed to create zlib include");
+    let mut h =
+        std::io::BufWriter::new(fs::File::create(output).expect("failed to create zlib include"));
 
     use std::io::IoSlice;
     let mut write = |bufs: &[IoSlice]| {
@@ -31,6 +32,7 @@ fn strip_symbol_prefix(input: &Path, output: &Path, mut on_line: impl FnMut(&str
         }
     };
 
+    let mut version = None;
     for line in contents.lines() {
         if let Some((begin, end)) = line.split_once("@ZLIB_SYMBOL_PREFIX@") {
             write(&[
@@ -42,7 +44,17 @@ fn strip_symbol_prefix(input: &Path, output: &Path, mut on_line: impl FnMut(&str
             write(&[IoSlice::new(line.as_bytes()), IoSlice::new(b"\n")]);
         }
 
-        on_line(line);
+        if get_version {
+            if line.contains("ZLIBNG_VERSION") && line.contains("#define") {
+                version = Some(line.split('"').nth(1).unwrap().to_owned());
+            }
+        }
+    }
+
+    if get_version {
+        version.expect("failed to detect ZLIBNG_VERSION")
+    } else {
+        String::new()
     }
 }
 
@@ -138,7 +150,7 @@ impl<'ctx> Ctx<'ctx> {
         let result = if !output.status.success() {
             println!("cargo:warning=failed to compile check '{tf:?}'");
 
-            for line in String::from_utf8(output.stderr).unwrap().lines() {
+            for line in String::from_utf8_lossy(&output.stderr).lines() {
                 println!("cargo:warning={line}");
             }
 
@@ -296,7 +308,7 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
         fs::create_dir_all(&build).unwrap();
         build.push("gzread.c");
 
-        strip_symbol_prefix(Path::new("src/zlib-ng/gzread.c.in"), &build, |_line| {});
+        strip_symbol_prefix(Path::new("src/zlib-ng/gzread.c.in"), &build, false);
         cfg.file(build);
     }
 
@@ -586,22 +598,13 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
     )
     .unwrap();
 
-    let version = {
-        let mut version = None;
-        strip_symbol_prefix(
-            Path::new(&format!("src/zlib-ng/{zlib_h}.in")),
-            &include.join(zlib_h),
-            |line| {
-                if line.contains("ZLIBNG_VERSION") && line.contains("#define") {
-                    version = Some(line.split('"').nth(1).unwrap().to_owned());
-                }
-            },
-        );
+    let version = strip_symbol_prefix(
+        Path::new(&format!("src/zlib-ng/{zlib_h}.in")),
+        &include.join(zlib_h),
+        true,
+    );
 
-        version.expect("failed to detect ZLIBNG_VERSION")
-    };
-
-    cfg.include(include).include("src/zlib-ng");
+    cfg.include(&include).include("src/zlib-ng");
     cfg.compile("z");
 
     fs::create_dir_all(lib.join("pkgconfig")).unwrap();
@@ -616,10 +619,9 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
     )
     .unwrap();
 
-    let dst = dst.to_str().unwrap();
-    println!("cargo:root={dst}");
-    println!("cargo:rustc-link-search=native={}", lib.to_str().unwrap());
-    println!("cargo:include={dst}/include");
+    println!("cargo:root={}", dst.display());
+    println!("cargo:rustc-link-search=native={}", lib.display());
+    println!("cargo:include={}", include.display());
 
     if !compat {
         println!("cargo:rustc-cfg=zng");
