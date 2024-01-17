@@ -344,6 +344,8 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
             cfg.define("X86_FEATURES", None);
             cfg.file("src/zlib-ng/arch/x86/x86_features.c");
 
+            let is_64 = arch.as_str() == "x86_64";
+
             let pclmulqdq = {
                 let mut ctx = Ctx {
                     cfg: &mut cfg,
@@ -365,7 +367,7 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
                     check: "sse2",
                     defines: &["X86_SSE2"],
                     flags: &["-msse2"],
-                    msvc_flags: &["/arch:SSE2"],
+                    msvc_flags: if is_64 { &[] } else { &["/arch:SSE2"] },
                     files: &["chunkset_sse2", "compare256_sse2", "slide_hash_sse2"],
                 }) {
                     if arch != "x86_64" {
@@ -569,6 +571,7 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
             &include.join(zlib_h),
             |line| {
                 if line.contains("ZLIBNG_VERSION") {
+                    eprintln!("cargo:warning=uhm what '{line}'");
                     version = Some(line.split('"').nth(1).unwrap().to_owned());
                 }
             },
