@@ -295,6 +295,7 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
         build.push("gzread.c");
 
         strip_symbol_prefix(Path::new("src/zlib-ng/gzread.c.in"), &build, |_line| {});
+        cfg.file(build);
     }
 
     let msvc = target.ends_with("pc-windows-msvc");
@@ -580,7 +581,6 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
     };
 
     cfg.include(include).include("src/zlib-ng");
-
     cfg.compile("z");
 
     fs::create_dir_all(lib.join("pkgconfig")).unwrap();
