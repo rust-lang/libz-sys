@@ -35,7 +35,7 @@ use stock zlib.
 Library crates depending on `libz-sys` should use:
 
 ```
-libz-sys = { version = "1.1.14", default-features = false, features = ["libc"] }
+libz-sys = { version = "1.1", default-features = false, features = ["libc"] }
 ```
 
 (Omit the `libc` feature if you don't require the corresponding functions.)
