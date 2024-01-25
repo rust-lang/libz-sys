@@ -34,7 +34,7 @@ use stock zlib.
 
 Library crates depending on `libz-sys` should use:
 
-```
+```toml
 libz-sys = { version = "1.1", default-features = false, features = ["libc"] }
 ```
 
