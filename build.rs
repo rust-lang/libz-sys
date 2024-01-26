@@ -184,7 +184,11 @@ fn try_vcpkg() -> bool {
 
 fn zlib_installed(cfg: &mut cc::Build) -> bool {
     let mut cmd = cfg.get_compiler().to_command();
-    cmd.arg("src/smoke.c").arg("-o").arg("/dev/null").arg("-lz");
+    cmd.arg("src/smoke.c")
+        .arg("-g0")
+        .arg("-o")
+        .arg("/dev/null")
+        .arg("-lz");
 
     println!("running {:?}", cmd);
     if let Ok(status) = cmd.status() {
