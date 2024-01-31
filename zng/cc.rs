@@ -289,11 +289,7 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
 
             // Support runtime detection on linux/android
             if matches!(target_os.as_str(), "linux" | "android") {
-                for def in &[
-                    "HAVE_SYS_AUXV_H",
-                    "ARM_AUXV_HAS_CRC32",
-                    "ARM_AUXV_HAS_CRC32",
-                ] {
+                for def in &["HAVE_SYS_AUXV_H", "ARM_AUXV_HAS_CRC32"] {
                     cfg.define(def, None);
                 }
 
@@ -311,6 +307,7 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
                 // we do that once later in this block
                 if !is_aarch64 {
                     cfg.mflag("-march=armv8-a+crc", None);
+                    cfg.define("ARM_ASM_HWCAP", None);
                 }
             }
 
