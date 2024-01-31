@@ -32,26 +32,29 @@ fi
 $CROSS test --target $TARGET_TRIPLE
 $CROSS run --target $TARGET_TRIPLE --manifest-path systest/Cargo.toml
 
-echo === zlib-ng build ===
+echo '::group::=== zlib-ng build ==='
 $CROSS test --target $TARGET_TRIPLE --no-default-features --features zlib-ng
 $CROSS run --target $TARGET_TRIPLE --manifest-path systest/Cargo.toml --no-default-features --features zlib-ng
+echo '::endgroup::'
 
 # Note we skip compiling these targets on CI because the gcc version currently used in
 # cross for them is 5.4, ~8 years old at this point, hopefully it will be updated...sometime
 skip_triples=("x86_64-unknown-linux-gnu" "i686-unknown-linux-gnu" "aarch64-unknown-linux-gnu" "arm-unknown-linux-gnueabihf")
 if [[ -z $CI ]] || ! [[ ${skip_triples[@]} =~ "${TARGET_TRIPLE}" ]]; then
-    echo '=== zlib-ng-no-cmake build ==='
+    echo '::group::=== zlib-ng-no-cmake build ==='
     $CROSS test --target "$TARGET_TRIPLE" --no-default-features --features zlib-ng-no-cmake
     $CROSS run --target "$TARGET_TRIPLE" --manifest-path systest/Cargo.toml --no-default-features --features zlib-ng-no-cmake
+    echo '::endgroup::'
 fi
 
-echo === libz-ng-sys build ===
+echo '::group::=== libz-ng-sys build ==='
 mv Cargo-zng.toml Cargo.toml
 mv systest/Cargo-zng.toml systest/Cargo.toml
 $CROSS test --target $TARGET_TRIPLE
 $CROSS run --target $TARGET_TRIPLE --manifest-path systest/Cargo.toml
+echo '::endgroup::'
 
-echo === flate2 validation ===
+echo '::group::=== flate2 validation ==='
 git clone https://github.com/rust-lang/flate2-rs flate2
 git worktree add flate2/libz-sys
 git worktree add flate2/libz-ng-sys
@@ -79,3 +82,4 @@ $CROSS test --features zlib --target $TARGET_TRIPLE
 $CROSS test --features zlib-default --no-default-features --target $TARGET_TRIPLE
 $CROSS test --features zlib-ng --no-default-features --target $TARGET_TRIPLE
 $CROSS test --features zlib-ng-compat --no-default-features --target $TARGET_TRIPLE
+echo '::endgroup::'
