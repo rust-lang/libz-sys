@@ -26,7 +26,7 @@ exclude = [
     "/systest",
 ]
 
-build = "build_zng.rs"
+build = "zng/cmake.rs"
 readme = "README-zng.md"
 
 [workspace]
@@ -36,4 +36,4 @@ members = ["systest"]
 libc = "0.2.43"
 
 [build-dependencies]
-cc = "1.0"
+cmake = "0.1"

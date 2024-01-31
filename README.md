@@ -43,6 +43,11 @@ libz-sys = { version = "1.1", default-features = false, features = ["libc"] }
 This allows higher-level crates depending on your library to opt into zlib-ng
 if desired.
 
+Building zlib-ng requires `cmake` unless the `zlib-ng-no-cmake` feature is enabled,
+in which case `cc` is used instead. Note that this option enables _all_ compiler
+features that are supported for the given target, which may not compile on older
+compilers or targets without certain headers.
+
 Crates that don't require compatibility with the zlib C API, and use zlib
 exclusively from Rust or support the zlib-ng native C API (prefixed with
 `zng_`) can use [`libz-ng-sys`](https://crates.io/crates/libz-ng-sys) instead,

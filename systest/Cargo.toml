@@ -14,3 +14,4 @@ ctest2 = "0.4.4"
 [features]
 libz-static = ["libz-sys/static"]
 zlib-ng = ["libz-sys/zlib-ng"]
+zlib-ng-no-cmake = ["libz-sys/zlib-ng-no-cmake"]
