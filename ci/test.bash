@@ -36,9 +36,10 @@ echo === zlib-ng build ===
 $CROSS test --target $TARGET_TRIPLE --no-default-features --features zlib-ng
 $CROSS run --target $TARGET_TRIPLE --manifest-path systest/Cargo.toml --no-default-features --features zlib-ng
 
-# Note we skip compiling these 2 targets because the gcc version currently used in cross for them is 5.4, ~8 years old
-# at this point, hopefully it be updated...sometime
-if ! [[ "$TARGET_TRIPLE" = 'x86_64-unknown-linux-gnu' ]] && ! [[ "$TARGET_TRIPLE" = 'i686-unknown-linux-gnu' ]]; then
+# Note we skip compiling these targets on CI because the gcc version currently used in
+# cross for them is 5.4, ~8 years old at this point, hopefully it will be updated...sometime
+skip_triples=("x86_64-unknown-linux-gnu" "i686-unknown-linux-gnu" "aarch64-unknown-linux-gnu" "arm-unknown-linux-gnueabihf")
+if [[ -n "$CI" ]] || ! [[ ${skip_triples[@]} =~ "\<${TARGET_TRIPLE}\>" ]]; then
     echo '=== zlib-ng-no-cmake build ==='
     $CROSS test --target "$TARGET_TRIPLE" --no-default-features --features zlib-ng-no-cmake
     $CROSS run --target "$TARGET_TRIPLE" --manifest-path systest/Cargo.toml --no-default-features --features zlib-ng-no-cmake
