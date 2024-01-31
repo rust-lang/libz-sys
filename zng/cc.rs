@@ -307,7 +307,11 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
             if !cfg.is_msvc || is_aarch64 {
                 cfg.define("ARM_ACLE", None);
                 cfg.append(Some("arch/arm"), &["crc32_acle", "insert_string_acle"]);
-                cfg.mflag("-march=armv8-a+crc", None);
+                // When targeting aarch64 we already need to specify +simd, so
+                // we do that once later in this block
+                if !is_aarch64 {
+                    cfg.mflag("-march=armv8-a+crc", None);
+                }
             }
 
             // neon
@@ -326,7 +330,7 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
             );
             cfg.mflag(
                 if is_aarch64 {
-                    "-march=armv8-a+simd"
+                    "-march=armv8-a+crc+simd"
                 } else {
                     "-mfpu=neon"
                 },
