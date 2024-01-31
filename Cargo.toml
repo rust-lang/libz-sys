@@ -34,6 +34,7 @@ libc = { version = "0.2.43", optional = true }
 [build-dependencies]
 pkg-config = "0.3.9"
 cc = "1.0.18"
+cmake = { version = "0.1.50", optional = true }
 vcpkg = "0.2"
 
 [features]
@@ -55,12 +56,9 @@ default = ["libc", "stock-zlib"]
 #
 # This allows higher-level crates depending on your library to opt into zlib-ng
 # if desired.
-zlib-ng = ["libc"]
-# AVX-512 is nightly-only currently <https://github.com/rust-lang/rust/issues/44839>,
-# enabling this feature means that AVX-512 support is probed for in the C compiler.
-#
-# No effect on non-x86 arches
-zlib-ng-avx512 = ["zlib-ng"]
+zlib-ng = ["libc", "cmake"]
+# Builds zlib-ng from source using cc instead of cmake
+zlib-ng-no-cmake = ["libc"]
 stock-zlib = []
 # Deprecated: the assembly routines are outdated, and either reduce performance
 # or cause segfaults.

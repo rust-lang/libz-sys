@@ -5,12 +5,16 @@ use std::path::PathBuf;
 fn main() {
     println!("cargo:rerun-if-env-changed=LIBZ_SYS_STATIC");
     println!("cargo:rerun-if-changed=build.rs");
+    println!("cargo:rerun-if-changed=zng/cmake.rs");
+    println!("cargo:rerun-if-changed=zng/cc.rs");
+
     let host = env::var("HOST").unwrap();
     let target = env::var("TARGET").unwrap();
 
     let host_and_target_contain = |s| host.contains(s) && target.contains(s);
 
-    let want_ng = cfg!(feature = "zlib-ng") && !cfg!(feature = "stock-zlib");
+    let want_ng = cfg!(any(feature = "zlib-ng", feature = "zlib-ng-no-cmake"))
+        && !cfg!(feature = "stock-zlib");
 
     if want_ng && target != "wasm32-unknown-unknown" {
         return build_zlib_ng(&target, true);
@@ -169,13 +173,19 @@ fn build_zlib(cfg: &mut cc::Build, target: &str) {
     println!("cargo:include={}/include", dst.to_str().unwrap());
 }
 
-#[cfg(not(feature = "zlib-ng"))]
-fn build_zlib_ng(_target: &str, _compat: bool) {}
+#[cfg(any(feature = "zlib-ng", feature = "zlib-ng-no-cmake"))]
+mod zng {
+    #[cfg_attr(feature = "zlib-ng", path = "cmake.rs")]
+    #[cfg_attr(feature = "zlib-ng-no-cmake", path = "cc.rs")]
+    mod build_zng;
 
-#[cfg(feature = "zlib-ng")]
-mod build_zng;
-#[cfg(feature = "zlib-ng")]
-use build_zng::build_zlib_ng;
+    pub(super) use build_zng::build_zlib_ng;
+}
+
+fn build_zlib_ng(_target: &str, _compat: bool) {
+    #[cfg(any(feature = "zlib-ng", feature = "zlib-ng-no-cmake"))]
+    zng::build_zlib_ng(_target, _compat);
+}
 
 fn try_vcpkg() -> bool {
     // see if there is a vcpkg tree with zlib installed
