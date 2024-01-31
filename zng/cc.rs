@@ -315,7 +315,16 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
             }
 
             // neon
-            cfg.define("ARM_NEON", None).define("ARM_NEON_HASLD4", None);
+            cfg.define("ARM_NEON", None);
+
+            // TODO: These intrinsics were only added in gcc 9.4, which is _relatively_
+            // recent, and if the define is not set zlib-ng just provides its
+            // own implements, so maybe in a couple of years this can be toggled on
+            // * vld1q_u16_x4
+            // * vld1q_u8_x4
+            // * vst1q_u16_x4
+            // cfg.define("ARM_NEON_HASLD4", None)
+
             if cfg.is_msvc {
                 cfg.define("__ARM_NEON__", None);
             }
