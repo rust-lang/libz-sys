@@ -387,7 +387,25 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
     );
 
     cfg.include(&include).include("src/zlib-ng");
-    cfg.compile("z");
+    if let Err(err) = cfg.try_compile("z") {
+        let version = if !cfg.is_msvc {
+            match std::process::Command::new(cfg.get_compiler().path())
+                .arg("--version")
+                .output()
+            {
+                Ok(output) => String::from_utf8_lossy(&output.stdout).into_owned(),
+                Err(_err) => "unknown".into(),
+            }
+        } else {
+            "msvc".into()
+        };
+
+        eprintln!("{err}");
+        panic!(
+            "failed to compile zlib-ng with cc: detected compiler version as \n---\n{}---",
+            version
+        );
+    }
 
     fs::create_dir_all(lib.join("pkgconfig")).unwrap();
     fs::write(
