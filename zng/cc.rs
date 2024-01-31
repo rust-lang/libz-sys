@@ -305,7 +305,7 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
             // According to the cmake macro, MSVC is missing the crc32 intrinsic
             // for arm, don't know if that is still true though
             if !cfg.is_msvc || is_aarch64 {
-                cfg.define("ARM_ACLE", None);
+                cfg.define("ARM_ACLE", None).define("HAVE_ARM_ACLE_H", None);
                 cfg.append(Some("arch/arm"), &["crc32_acle", "insert_string_acle"]);
                 // When targeting aarch64 we already need to specify +simd, so
                 // we do that once later in this block
