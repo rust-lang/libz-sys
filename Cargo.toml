@@ -63,7 +63,7 @@ zlib-ng = ["libc", "cmake"]
 #
 # This feature is not maintained by the repo maintainers and can break at any time
 # or be completely removed in the future
-zlib-ng-no-cmake-experimental-community-maintained- = ["libc"]
+zlib-ng-no-cmake-experimental-community-maintained = ["libc"]
 stock-zlib = []
 # Deprecated: the assembly routines are outdated, and either reduce performance
 # or cause segfaults.
