@@ -13,8 +13,10 @@ fn main() {
 
     let host_and_target_contain = |s| host.contains(s) && target.contains(s);
 
-    let want_ng = cfg!(any(feature = "zlib-ng", feature = "zlib-ng-no-cmake"))
-        && !cfg!(feature = "stock-zlib");
+    let want_ng = cfg!(any(
+        feature = "zlib-ng",
+        feature = "zlib-ng-no-cmake-experimental-community-maintained"
+    )) && !cfg!(feature = "stock-zlib");
 
     if want_ng && target != "wasm32-unknown-unknown" {
         return build_zlib_ng(&target, true);
@@ -173,17 +175,29 @@ fn build_zlib(cfg: &mut cc::Build, target: &str) {
     println!("cargo:include={}/include", dst.to_str().unwrap());
 }
 
-#[cfg(any(feature = "zlib-ng", feature = "zlib-ng-no-cmake"))]
+#[cfg(any(
+    feature = "zlib-ng",
+    feature = "zlib-ng-no-cmake-experimental-community-maintained"
+))]
 mod zng {
     #[cfg_attr(feature = "zlib-ng", path = "cmake.rs")]
-    #[cfg_attr(feature = "zlib-ng-no-cmake", path = "cc.rs")]
+    #[cfg_attr(
+        all(
+            feature = "zlib-ng-no-cmake-experimental-community-maintained",
+            not(feature = "zlib-ng")
+        ),
+        path = "cc.rs"
+    )]
     mod build_zng;
 
     pub(super) use build_zng::build_zlib_ng;
 }
 
 fn build_zlib_ng(_target: &str, _compat: bool) {
-    #[cfg(any(feature = "zlib-ng", feature = "zlib-ng-no-cmake"))]
+    #[cfg(any(
+        feature = "zlib-ng",
+        feature = "zlib-ng-no-cmake-experimental-community-maintained"
+    ))]
     zng::build_zlib_ng(_target, _compat);
 }
 
