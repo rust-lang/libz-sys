@@ -39,7 +39,7 @@ echo '::endgroup::'
 
 # Note we skip compiling these targets on CI because the gcc version currently used in
 # cross for them is 5.4, ~8 years old at this point, hopefully it will be updated...sometime
-skip_triples=("x86_64-unknown-linux-gnu" "i686-unknown-linux-gnu" "aarch64-unknown-linux-gnu" "arm-unknown-linux-gnueabihf")
+skip_triples=("x86_64-unknown-linux-gnu" "i686-unknown-linux-gnu" "aarch64-unknown-linux-gnu" "arm-unknown-linux-gnueabihf" "s390x-unknown-linux-gnu")
 if [[ -z $CI ]] || ! [[ ${skip_triples[@]} =~ "${TARGET_TRIPLE}" ]]; then
     echo '::group::=== zlib-ng-no-cmake build ==='
     $CROSS test --target "$TARGET_TRIPLE" --no-default-features --features zlib-ng-no-cmake-experimental-community-maintained
