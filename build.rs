@@ -67,11 +67,10 @@ fn main() {
     // Apple platforms have libz.1.dylib, and it's usually available even when
     // cross compiling (via fat binary or in the target's Xcode SDK)
     let cross_compiling = target != host;
-    let apple_to_apple = host.contains("-apple-") && target.contains("-apple-");
     if target.contains("msvc")
         || target.contains("pc-windows-gnu")
         || want_static
-        || (cross_compiling && !apple_to_apple)
+        || (cross_compiling && !target.contains("-apple-"))
     {
         return build_zlib(&mut cfg, &target);
     }
@@ -185,7 +184,11 @@ fn try_vcpkg() -> bool {
 
 fn zlib_installed(cfg: &mut cc::Build) -> bool {
     let mut cmd = cfg.get_compiler().to_command();
-    cmd.arg("src/smoke.c").arg("-o").arg("/dev/null").arg("-lz");
+    cmd.arg("src/smoke.c")
+        .arg("-g0")
+        .arg("-o")
+        .arg("/dev/null")
+        .arg("-lz");
 
     println!("running {:?}", cmd);
     if let Ok(status) = cmd.status() {
