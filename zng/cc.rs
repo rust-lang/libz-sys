@@ -192,13 +192,16 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
         cfg.define("_C99_SOURCE", None);
     } else if target.contains("solaris") {
         cfg.define("_XOPEN_SOURCE", "700");
-    } else if target.contains("s390x") {
-        // Enable hardware compression on s390x.
-        cfg.file("src/zlib-ng/arch/s390/dfltcc_deflate.c")
-            .flag("-DDFLTCC_LEVEL_MASK=0x7e");
     }
 
+    let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap();
     let arch = env::var("CARGO_CFG_TARGET_ARCH").expect("failed to retrieve target arch");
+
+    let is_linux_or_android = matches!(target_os.as_str(), "linux" | "android");
+    if is_linux_or_android {
+        cfg.define("HAVE_SYS_AUXV_H", None);
+    }
+
     match arch.as_str() {
         "x86_64" | "i686" => {
             cfg.define("X86_FEATURES", None);
@@ -285,13 +288,9 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
             cfg.define("ARM_FEATURES", None);
             cfg.file("src/zlib-ng/arch/arm/arm_features.c");
 
-            let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap();
-
             // Support runtime detection on linux/android
-            if matches!(target_os.as_str(), "linux" | "android") {
-                for def in &["HAVE_SYS_AUXV_H", "ARM_AUXV_HAS_CRC32"] {
-                    cfg.define(def, None);
-                }
+            if is_linux_or_android {
+                cfg.define("ARM_AUXV_HAS_CRC32", None);
 
                 if !is_aarch64 {
                     cfg.define("ARM_AUXV_HAS_NEON", None);
@@ -343,8 +342,35 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
                 None,
             );
         }
+        "s390x" => {
+            for def in &[
+                "S390_FEATURES",
+                "S390_DFLTCC_DEFLATE",
+                "S390_DFLTCC_INFLATE",
+                "S390_CRC32_VX",
+            ] {
+                cfg.define(def, None);
+            }
+            cfg.flag("-DDFLTCC_LEVEL_MASK=0x7e");
+
+            cfg.append(
+                Some("arch/s390"),
+                &[
+                    "crc32-vx",
+                    "dfltcc_common",
+                    "dfltcc_deflate",
+                    "dfltcc_inflate",
+                    "s390_features",
+                ],
+            );
+        }
         _ => {
-            // TODO: powerpc, riscv, s390
+            // NOTE: PowerPC and Riscv
+            // zlib-ng can use intrinsics for both of these targets, however neither
+            // of them are currently checked in CI, they will still work without
+            // using the intrinsics, they will just be slower
+            // PowerPC - <github issue here>
+            // Riscv - <github issue here>
         }
     }
 
