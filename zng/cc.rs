@@ -313,9 +313,12 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
             // neon
             cfg.define("ARM_NEON", None);
 
-            // TODO: These intrinsics were only added in gcc 9.4, which is _relatively_
+            // NOTE: These intrinsics were only added in gcc 9.4, which is _relatively_
             // recent, and if the define is not set zlib-ng just provides its
             // own implements, so maybe in a couple of years this can be toggled on
+            // if building with cc is merged it makes sense to put compiler intrinsic/header
+            // probing in a separate crate that can then be used here to enable
+            // those intrinsics if the compiler supports them
             // * vld1q_u16_x4
             // * vld1q_u8_x4
             // * vst1q_u16_x4
