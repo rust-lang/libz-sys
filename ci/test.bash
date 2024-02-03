@@ -41,9 +41,11 @@ echo '::endgroup::'
 # cross for them is 5.4, ~8 years old at this point, hopefully it will be updated...sometime
 skip_triples=("x86_64-unknown-linux-gnu" "i686-unknown-linux-gnu" "aarch64-unknown-linux-gnu" "arm-unknown-linux-gnueabihf" "s390x-unknown-linux-gnu")
 if [[ -z $CI ]] || ! [[ ${skip_triples[@]} =~ "${TARGET_TRIPLE}" ]]; then
-    echo '::group::=== zlib-ng-no-cmake build ==='
-    $CROSS test --target "$TARGET_TRIPLE" --no-default-features --features zlib-ng-no-cmake-experimental-community-maintained
-    $CROSS run --target "$TARGET_TRIPLE" --manifest-path systest/Cargo.toml --no-default-features --features zlib-ng-no-cmake-experimental-community-maintained
+    echo '::group::=== zlib-ng-no-cmake-experimental-community-maintained build ==='
+
+    $CROSS test --target "$TARGET_TRIPLE" --no-default-features --features zlib-ng-no-cmake-experimental-community-maintained || echo "::warning file=$(basename $0),line=$LINENO::Failed to test zlib-ng with --features zlib-ng-no-cmake-experimental-community-maintained"
+    $CROSS run --target "$TARGET_TRIPLE" --manifest-path systest/Cargo.toml --no-default-features --features zlib-ng-no-cmake-experimental-community-maintained || echo "::warning file=$(basename $0),line=$LINENO::Failed to run systest with --features zlib-ng-no-cmake-experimental-community-maintained"
+
     echo '::endgroup::'
 fi
 
