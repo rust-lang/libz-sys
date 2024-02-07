@@ -86,7 +86,7 @@ fn strip_symbol_prefix(input: &Path, output: &Path, get_version: bool) -> String
             write(&[IoSlice::new(line.as_bytes()), IoSlice::new(b"\n")]);
         }
 
-        if get_version {
+        if version.is_none() && get_version {
             if line.contains("ZLIBNG_VERSION") && line.contains("#define") {
                 version = Some(line.split('"').nth(1).unwrap().to_owned());
             }
