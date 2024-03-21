@@ -35,7 +35,16 @@ fn main() {
             .print_system_libs(false)
             .probe("zlib");
         match zlib {
-            Ok(_) => return,
+            Ok(zlib) => {
+                if !zlib.include_paths.is_empty() {
+                    let paths = zlib
+                        .include_paths
+                        .iter()
+                        .map(|s| s.display().to_string())
+                        .collect::<Vec<_>>();
+                    println!("cargo:include={}", paths.join(","));
+                }
+            }
             Err(e) => {
                 println!("cargo-warning={}", e.to_string())
             }
