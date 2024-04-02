@@ -10,13 +10,14 @@ categories = ["compression", "external-ffi-bindings"]
 keywords = ["zlib", "zlib-ng"]
 edition = "2018"
 
-exclude = [
-    "/.github",
-    "/.gitmodules",
-    "/Cargo-zng.toml",
-    "/cargo-zng",
-    "/ci",
-    "/systest"
+include = [
+    "LICENSE*",
+    "/README.md",
+    "build.rs",
+    "src/*.rs",
+    "src/*.c",
+    "src/zlib/*.[ch]",
+    "src/zlib/*.pc.in",
 ]
 
 [workspace]
