@@ -43,7 +43,11 @@ libz-sys = { version = "1.1", default-features = false, features = ["libc"] }
 This allows higher-level crates depending on your library to opt into zlib-ng
 if desired.
 
-Building zlib-ng requires `cmake`.
+Building zlib-ng requires `cmake` unless the
+`zlib-ng-no-cmake-experimental-community-maintained` feature is enabled,
+in which case `cc` is used instead. Note that this option enables _all_ compiler
+features that are supported for the given target, which may not compile on older
+compilers or targets without certain headers.
 
 Crates that don't require compatibility with the zlib C API, and use zlib
 exclusively from Rust or support the zlib-ng native C API (prefixed with
@@ -62,10 +66,10 @@ but we don't guarantee these will continue to work.
 
 This project is licensed under either of
 
- * Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or
-   https://www.apache.org/licenses/LICENSE-2.0)
- * MIT license ([LICENSE-MIT](LICENSE-MIT) or
-   https://opensource.org/license/mit/)
+* Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or
+   <https://www.apache.org/licenses/LICENSE-2.0>)
+* MIT license ([LICENSE-MIT](LICENSE-MIT) or
+   <https://opensource.org/license/mit/>)
 
 at your option.
 

@@ -34,7 +34,7 @@ libc = { version = "0.2.43", optional = true }
 [build-dependencies]
 pkg-config = "0.3.9"
 cc = "1.0.18"
-cmake = { version = "0.1.44", optional = true }
+cmake = { version = "0.1.50", optional = true }
 vcpkg = "0.2"
 
 [features]
@@ -56,9 +56,14 @@ default = ["libc", "stock-zlib"]
 #
 # This allows higher-level crates depending on your library to opt into zlib-ng
 # if desired.
+zlib-ng = ["libc", "cmake"]
+# Builds zlib-ng from source using cc instead of cmake with all target features
+# enabled, meaning compilation may not work depending on your target and host
+# toolchain (eg very old compilers won't have some flags)
 #
-# Building zlib-ng requires cmake.
-zlib-ng =  ["libc", "cmake"]
+# This feature is not maintained by the repo maintainers and can break at any time
+# or be completely removed in the future
+zlib-ng-no-cmake-experimental-community-maintained = ["libc"]
 stock-zlib = []
 # Deprecated: the assembly routines are outdated, and either reduce performance
 # or cause segfaults.
