@@ -24,6 +24,21 @@ include = [
     "src/*.c",
     "src/zlib/*.[ch]",
     "src/zlib/*.pc.in",
+    # zlib-ng
+    "src/zlib-ng/**.[ch]",
+    "src/zlib-ng/arch/arm/**.[ch]",
+    "src/zlib-ng/arch/generic/**.[ch]",
+    "src/zlib-ng/arch/power/**.[ch]",
+    "src/zlib-ng/arch/riscv/**.[ch]",
+    "src/zlib-ng/arch/s390x/**.[ch]",
+    "src/zlib-ng/arch/x86/**.[ch]",
+    "src/zlib-ng/*.[ch].in",
+    "src/zlib-ng/*.pc.in",
+    "src/zlib-ng/zlib_name_mangling.h.empty",
+    # zlib-ng cmake
+    "src/zlib-ng/CMakeLists.txt",
+    "src/zlib-ng/zlib.pc.cmakein",
+    "src/zlib-ng/cmake",
 ]
 
 [workspace]
@@ -39,7 +54,7 @@ libc = { version = "0.2.43", optional = true }
 
 [build-dependencies]
 pkg-config = "0.3.9"
-cc = "1.0.18"
+cc = "1.0.97"
 cmake = { version = "0.1.50", optional = true }
 vcpkg = "0.2"
 

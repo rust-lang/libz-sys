@@ -11,7 +11,17 @@ struct Build {
 
 impl Build {
     fn new(cfg: cc::Build) -> Self {
-        let is_msvc = cfg.get_compiler().is_like_msvc();
+        // cc currently has a bug where they create a named temp file in a directory
+        // without ensuring the directory exists first, so apply this workaround
+        // until it can be fixed upstream
+        let mut pb = PathBuf::from(env::var_os("OUT_DIR").expect("this should always be set"));
+        pb.push("lib");
+        if let Err(err) = std::fs::create_dir_all(&pb) {
+            panic!("failed to create {:?}: {}", pb, err);
+        }
+
+        let is_msvc = cfg.try_get_compiler().unwrap().is_like_msvc();
+
         Self { cfg, is_msvc }
     }
 
