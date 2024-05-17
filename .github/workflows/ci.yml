@@ -81,6 +81,18 @@ jobs:
 
   cc:
     runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          submodules: true
+      # ensures packaging works
+      - run: |
+          cargo package --all-features
+          cargo package --no-default-features --features zlib-ng-no-cmake-experimental-community-maintained
+          cargo package --no-default-features --features zlib-ng
+
+  package:
+    runs-on: ubuntu-22.04
     env:
       TARGET_TRIPLE: x86_64-unknown-linux-gnu
     steps:
