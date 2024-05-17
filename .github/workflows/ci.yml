@@ -85,32 +85,31 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
           submodules: true
-      # ensures packaging works
-      - run: |
-          cargo package --all-features
-          cargo package --no-default-features --features zlib-ng-no-cmake-experimental-community-maintained
-          cargo package --no-default-features --features zlib-ng
-
-  package:
-    runs-on: ubuntu-22.04
-    env:
-      TARGET_TRIPLE: x86_64-unknown-linux-gnu
-    steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-        with:
-          submodules: true
       # Ensures --all-features builds correctly, the current logic will mean it
       # uses stock zlib, not cmake nor cc
       - run: |
-          cargo test --target $TARGET_TRIPLE --all-features
-          cargo run --target $TARGET_TRIPLE --manifest-path systest/Cargo.toml --all-features
+          cargo test --all-features
+          cargo run --manifest-path systest/Cargo.toml --all-features
       # Ensures zlib-ng builds and runs, though zlib-ng _could_ change internally
       # and not use all optimizations available to the CI runner, we do this here
       # just for x86_64-unknown-linux-gnu to validate a common target compiles
       # on a more recent compiler than the incredibly ancient one currently used by cross
       - run: |
-          cargo test --target $TARGET_TRIPLE --no-default-features --features zlib-ng-no-cmake-experimental-community-maintained || echo "::warning::failed to build libz-ng with --features zlib-ng-no-cmake-experimental-community-maintained"
-          cargo run --target $TARGET_TRIPLE --manifest-path systest/Cargo.toml --no-default-features --features zlib-ng-no-cmake-experimental-community-maintained || echo "::warning::failed to run systest with --features zlib-ng-no-cmake-experimental-community-maintained"
+          cargo test --no-default-features --features zlib-ng-no-cmake-experimental-community-maintained || echo "::warning::failed to build libz-ng with --features zlib-ng-no-cmake-experimental-community-maintained"
+          cargo run --manifest-path systest/Cargo.toml --no-default-features --features zlib-ng-no-cmake-experimental-community-maintained || echo "::warning::failed to run systest with --features zlib-ng-no-cmake-experimental-community-maintained"
+          
+
+  # ensures packaging works
+  package:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          submodules: true
+      - run: |
+          cargo package --all-features
+          cargo package --no-default-features --features zlib-ng-no-cmake-experimental-community-maintained
+          cargo package --no-default-features --features zlib-ng
 
   linux:
     runs-on: ubuntu-latest
