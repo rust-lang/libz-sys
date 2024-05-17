@@ -18,6 +18,8 @@ include = [
     "LICENSE*",
     "/README.md",
     "build.rs",
+    "zng/cc.rs",
+    "zng/cmake.rs",
     "src/*.rs",
     "src/*.c",
     "src/zlib/*.[ch]",
