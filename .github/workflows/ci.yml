@@ -126,7 +126,11 @@ jobs:
           path: /tmp/
       - run: chmod +x /tmp/cross
       - run: ci/set_rust_version.bash ${{ matrix.channel }} ${{ matrix.target }}
-      - run: ci/test.bash /tmp/cross ${{ matrix.target }}
+      - run: |
+          if [ "${{ matrix.channel }}" == "nightly"]; then
+            export RUSTFLAGS='-Z linker-features=-lld'
+          fi
+          ci/test.bash /tmp/cross ${{ matrix.target }}
 
     strategy:
       fail-fast: false
