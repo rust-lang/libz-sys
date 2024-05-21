@@ -125,12 +125,10 @@ jobs:
           name: cross-linux-musl
           path: /tmp/
       - run: chmod +x /tmp/cross
+      - run: echo RUSTFLAGS=${RUSTFLAGS}\ -Zlinker-features=-lld >> $GITHUB_ENV
+        if: matrix.channel == 'nightly'
       - run: ci/set_rust_version.bash ${{ matrix.channel }} ${{ matrix.target }}
-      - run: |
-          if [ "${{ matrix.channel }}" == "nightly" ]; then
-            export RUSTFLAGS='-Z linker-features=-lld'
-          fi
-          ci/test.bash /tmp/cross ${{ matrix.target }}
+      - run: ci/test.bash /tmp/cross ${{ matrix.target }}
 
     strategy:
       fail-fast: false
