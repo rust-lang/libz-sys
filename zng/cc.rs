@@ -11,7 +11,7 @@ struct Build {
 
 impl Build {
     fn new(cfg: cc::Build) -> Self {
-        let is_msvc = cfg.get_compiler().is_like_msvc();
+        let is_msvc = cfg.try_get_compiler().unwrap().is_like_msvc();
         Self { cfg, is_msvc }
     }
 
