@@ -312,7 +312,7 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
             }
 
             // neon
-            if features.contains("neon") {
+            if features.split(",").any(|name| name == "neon")
                 cfg.define("ARM_NEON", None);
             }
 
