@@ -312,7 +312,9 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
             }
 
             // neon
-            if features.split(",").any(|name| name == "neon")
+            // Fix armv7-unknown-linux-musleabi and arm-unknown-linux-musleabi by only
+            // passing in ARM_NEON if that target is enabled.
+            if features.split(",").any(|name| name == "neon") {
                 cfg.define("ARM_NEON", None);
             }
 
