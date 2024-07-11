@@ -207,7 +207,17 @@ fn try_vcpkg() -> bool {
         .emit_includes(true)
         .find_package("zlib")
     {
-        Ok(_) => true,
+        Ok(zlib) => {
+            if !zlib.include_paths.is_empty() {
+                let paths = zlib
+                    .include_paths
+                    .iter()
+                    .map(|s| s.display().to_string())
+                    .collect::<Vec<_>>();
+                println!("cargo:include={}", paths.join(","));
+            }
+            true
+        }
         Err(e) => {
             println!("note, vcpkg did not find zlib: {}", e);
             false
