@@ -17,6 +17,7 @@ edition = "2018"
 include = [
     "LICENSE*",
     "/README.md",
+    "/README-zng.md",
     "build.rs",
     "zng/cc.rs",
     "zng/cmake.rs",
