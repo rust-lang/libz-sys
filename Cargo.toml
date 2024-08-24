@@ -91,3 +91,6 @@ stock-zlib = []
 asm = []
 # Enable this feature if you want to have a statically linked libz
 static = []
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(zng)'] }
