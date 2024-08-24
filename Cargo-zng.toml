@@ -36,7 +36,7 @@ members = ["systest"]
 libc = "0.2.43"
 
 [build-dependencies]
-cmake = "0.1"
+cmake = "0.1.50"
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(zng)'] }
