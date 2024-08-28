@@ -60,7 +60,7 @@ fn main() {
                 }
             }
             Err(e) => {
-                println!("cargo-warning={}", e.to_string())
+                println!("cargo:warning=Could not find zlib include paths via pkg-config: {}", e)
             }
         }
     }
