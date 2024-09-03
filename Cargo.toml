@@ -39,6 +39,8 @@ include = [
     # zlib-ng cmake
     "src/zlib-ng/CMakeLists.txt",
     "src/zlib-ng/zlib.pc.cmakein",
+    "src/zlib-ng/zlib-config.cmake.in",
+    "src/zlib-ng/zlib-ng-config.cmake.in",
     "src/zlib-ng/cmake",
 ]
 
