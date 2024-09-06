@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu
-trap 'rm -rf "$tempdir"' 0 INT
 tempdir="$(mktemp -d)"
+trap 'rm -rf "$tempdir"' 0 INT
 cargo package -l --allow-dirty |
     tr '\\' '/' |
     grep -v '^Cargo\.toml\.orig$' |
