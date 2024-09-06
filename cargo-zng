@@ -4,7 +4,7 @@ tempdir="$(mktemp -d)"
 trap 'rm -rf "$tempdir"' 0 INT
 cargo package -l --allow-dirty |
     tr '\\' '/' |
-    grep -v '^Cargo\.toml\.orig$' |
+    grep -vxF -e Cargo.toml.orig -e .cargo_vcs_info.json |
     tar --files-from=- -cf - |
     tar -C "$tempdir" -xf -
 cp Cargo-zng.toml "$tempdir/Cargo.toml"
