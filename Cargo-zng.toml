@@ -38,5 +38,11 @@ libc = "0.2.43"
 [build-dependencies]
 cmake = "0.1.50"
 
+[features]
+# This feature builds riscv64 binaries portable to machines without RVV, even if the build machine
+# is riscv64 and detected to support RVV. This is useful for building a more portable binary, or on
+# systems where auto-detection is incorrect (as in https://github.com/zlib-ng/zlib-ng/issues/1705).
+rvv-off = []
+
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(zng)'] }
