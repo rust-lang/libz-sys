@@ -14,7 +14,7 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
             .define("WITH_DFLTCC_INFLATE", "1")
             .cflag("-DDFLTCC_LEVEL_MASK=0x7e");
     }
-    if cfg!(feature = "rvv-off") && target.contains("riscv64") {
+    if target.contains("riscv64") && (cfg!(feature = "rvv-off") || env::var_os("RVV_OFF").is_some()) {
         cmake.define("WITH_RVV", "OFF");
     }
     if target == "i686-pc-windows-msvc" {
