@@ -26,6 +26,9 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
         {
             Some("OFF" | "NO" | "FALSE" | "0") => {
                 // Force RVV off. This turns off RVV entirely, as well as the runtime check for it.
+                // This is not usually necessary, but can be useful for building binaries portable
+                // to systems that do not support RVV but where auto-detection fails to identify
+                // this (as in https://github.com/zlib-ng/zlib-ng/issues/1705).
                 cmake.define("WITH_RVV", "OFF");
             }
             Some("ON" | "YES" | "TRUE" | "1") => {
