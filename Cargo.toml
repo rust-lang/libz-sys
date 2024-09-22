@@ -89,14 +89,6 @@ zlib-ng = ["libc", "cmake"]
 # or be completely removed in the future
 zlib-ng-no-cmake-experimental-community-maintained = ["libc"]
 stock-zlib = []
-# Experimental: This feature only affects zlib-ng, is only relevant to riscv64
-# targets, and currently only has an effect when `cmake` is used. It builds
-# binaries portable to machines without RVV, even if the build machine is
-# riscv64 and detected to support RVV. This is useful for building a more
-# portable binary, or on systems where auto-detection is incorrect (as in
-# https://github.com/zlib-ng/zlib-ng/issues/1705). Building with the `RVV_OFF`
-# environment variable set (to any value) is equivalent to this feature.
-rvv-off = []
 # Deprecated: the assembly routines are outdated, and either reduce performance
 # or cause segfaults.
 asm = []
