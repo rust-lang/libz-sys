@@ -1,5 +1,4 @@
 use std::env;
-use std::ffi::OsStr;
 
 pub fn build_zlib_ng(target: &str, compat: bool) {
     let mut cmake = cmake::Config::new("src/zlib-ng");
@@ -18,23 +17,21 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
     if target.contains("riscv") {
         // Check if we should pass on an explicit boolean value of the WITH_RVV build option.
         // See: https://github.com/zlib-ng/zlib-ng?tab=readme-ov-file#advanced-build-options
-        match env::var_os("RISCV_WITH_RVV")
-            .map(OsStr::to_str)
-            .map(str::trim)
-            .map(str::to_uppercase)
-            .map(Into::into)
-        {
-            Some("OFF" | "NO" | "FALSE" | "0") => {
-                // Force RVV off. This turns off RVV entirely, as well as the runtime check for it.
-                // This is not usually necessary, but can be useful for building binaries portable
-                // to systems that do not support RVV but where auto-detection fails to identify
-                // this (as in https://github.com/zlib-ng/zlib-ng/issues/1705).
-                cmake.define("WITH_RVV", "OFF");
-            }
-            Some("ON" | "YES" | "TRUE" | "1") => {
-                // Try to use RVV, but still don't do so if a runtime check finds it unavailable.
-                // This has the same effect as omitting WITH_RVV, unless it has already been set.
-                cmake.define("WITH_RVV", "ON");
+        if let Ok(value) = env::var("RISCV_WITH_RVV") {
+            match value.trim().to_uppercase().as_str() {
+                "OFF" | "NO" | "FALSE" | "0" => {
+                    // Force RVV off. This turns off RVV entirely, as well as the runtime check for it.
+                    // This is not usually necessary, but can be useful for building binaries portable
+                    // to systems that do not support RVV but where auto-detection fails to identify
+                    // this (as in https://github.com/zlib-ng/zlib-ng/issues/1705).
+                    cmake.define("WITH_RVV", "OFF");
+                }
+                "ON" | "YES" | "TRUE" | "1" => {
+                    // Try to use RVV, but still don't do so if a runtime check finds it unavailable.
+                    // This has the same effect as omitting WITH_RVV, unless it has already been set.
+                    cmake.define("WITH_RVV", "ON");
+                }
+                _ => {}
             }
         }
     }
