@@ -23,9 +23,9 @@ fn main() {
     }
 
     // All android compilers should come with libz by default, so let's just use
-    // the one already there. Likewise, Haiku always ships with libz, so we can
-    // link to it even when cross-compiling.
-    if target.contains("android") || target.contains("haiku") {
+    // the one already there. Likewise, Haiku and OpenHarmony always ship with libz,
+    // so we can link to it even when cross-compiling.
+    if target.contains("android") || target.contains("haiku") || target.ends_with("-ohos") {
         println!("cargo:rustc-link-lib=z");
         return;
     }
