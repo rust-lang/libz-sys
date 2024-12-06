@@ -149,7 +149,7 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
             "crc32_braid_c",
             "crc32_fold_c",
             "slide_hash_c",
-        ]
+        ],
     );
 
     if compat {
@@ -196,7 +196,8 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
             .flag("-fvisibility=hidden");
     }
 
-    if target.contains("apple") {
+    let is_apple = target.contains("apple");
+    if is_apple {
         cfg.define("_C99_SOURCE", None);
     } else if target.contains("solaris") {
         cfg.define("_XOPEN_SOURCE", "700");
@@ -322,7 +323,8 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
             // neon
             // Fix armv7-unknown-linux-musleabi and arm-unknown-linux-musleabi by only
             // passing in ARM_NEON if that target is enabled.
-            if features.split(",").any(|name| name == "neon") {
+            // Disable for apple targets due to https://github.com/rust-lang/libz-sys/issues/230
+            if !is_apple && features.split(",").any(|name| name == "neon") {
                 cfg.define("ARM_NEON", None);
             }
 
