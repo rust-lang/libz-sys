@@ -82,10 +82,12 @@ fn main() {
     // Apple platforms have libz.1.dylib, and it's usually available even when
     // cross compiling (via fat binary or in the target's Xcode SDK)
     let cross_compiling = target != host;
+    let try_link_with_shared =
+        env::var("LIB_SYS_TRY_SHARED").unwrap_or(String::new()) == "1";
     if target.contains("msvc")
         || target.contains("pc-windows-gnu")
         || want_static
-        || (cross_compiling && !target.contains("-apple-"))
+        || !try_link_with_shared && (cross_compiling && !target.contains("-apple-"))
     {
         return build_zlib(&mut cfg, &target);
     }
