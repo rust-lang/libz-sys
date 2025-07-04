@@ -75,17 +75,12 @@ fn main() {
 
     // Situations where we build unconditionally.
     //
-    // MSVC basically never has it preinstalled, MinGW picks up a bunch of weird
-    // paths we don't like, `want_static` may force us, and cross compiling almost
-    // never has a prebuilt version.
-    //
-    // Apple platforms have libz.1.dylib, and it's usually available even when
-    // cross compiling (via fat binary or in the target's Xcode SDK)
-    let cross_compiling = target != host;
+    // - MSVC basically never has zlib preinstalled
+    // - MinGW picks up a bunch of weird paths we don't like
+    // - Explicit opt-in via `want_static`
     if target.contains("msvc")
         || target.contains("pc-windows-gnu")
         || want_static
-        || (cross_compiling && !target.contains("-apple-"))
     {
         return build_zlib(&mut cfg, &target);
     }
@@ -101,6 +96,7 @@ fn main() {
         return;
     }
 
+    // For convenience fallback to building zlib if attempting to link zlib failed
     build_zlib(&mut cfg, &target)
 }
 
