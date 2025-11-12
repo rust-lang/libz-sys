@@ -125,8 +125,6 @@ jobs:
           name: cross-linux-musl
           path: /tmp/
       - run: chmod +x /tmp/cross
-      - run: echo RUSTFLAGS=${RUSTFLAGS}\ -Zlinker-features=-lld >> $GITHUB_ENV
-        if: matrix.channel == 'nightly'
       - run: ci/set_rust_version.bash ${{ matrix.channel }} ${{ matrix.target }}
       - run: ci/test.bash /tmp/cross ${{ matrix.target }}
 
