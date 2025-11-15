@@ -238,11 +238,11 @@ fn zlib_installed(cfg: &mut cc::Build) -> bool {
     false
 }
 
-// The environment variable `LIBZ_SYS_STATIC` is first checked for a value of `0` (false) or `1` (true),
-// before considering the `static` feature when no explicit ENV value was detected.
-// When `libz-sys` is a transitive dependency from a crate that forces static linking via the `static` feature,
-// this enables the build environment to revert that preference via `LIBZ_SYS_STATIC=0`.
-// The default is otherwise `false`.
+/// The environment variable `LIBZ_SYS_STATIC` is first checked for a value of `0` (false) or `1` (true),
+/// before considering the `static` feature when no explicit ENV value was detected.
+/// When `libz-sys` is a transitive dependency from a crate that forces static linking via the `static` feature,
+/// this enables the build environment to revert that preference via `LIBZ_SYS_STATIC=0`.
+/// The default is otherwise `false`.
 fn should_link_static() -> bool {
   let has_static_env: Option<&'static str> = option_env!("LIBZ_SYS_STATIC");
   let has_static_cfg = cfg!(feature = "static");
