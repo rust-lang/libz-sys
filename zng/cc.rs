@@ -163,7 +163,7 @@ pub fn build_zlib_ng(target: &str, compat: bool) {
         fs::create_dir_all(&build).unwrap();
         build.push("gzread.c");
 
-        strip_symbol_prefix(Path::new("src/zlib-ng/gzread.c.in"), &build, false);
+        strip_symbol_prefix(Path::new("src/zlib-ng/gzread_mangle.h.in"), &build, false);
         cfg.file(build);
     }
 
