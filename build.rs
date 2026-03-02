@@ -119,6 +119,9 @@ fn build_zlib(cfg: &mut cc::Build, target: &str) {
 
     if !cfg!(feature = "libc") || target.starts_with("wasm32") {
         cfg.define("Z_SOLO", None);
+        // zlib 1.3.2 uses `NULL` directly in compress.c/uncompr.c, but the
+        // Z_SOLO config path doesn't pull in headers that always define it.
+        cfg.define("NULL", Some("0"));
     } else {
         cfg.file("src/zlib/gzclose.c")
             .file("src/zlib/gzlib.c")
@@ -126,8 +129,11 @@ fn build_zlib(cfg: &mut cc::Build, target: &str) {
             .file("src/zlib/gzwrite.c");
     }
 
+    // zlib's zconf.h gates standard headers on `STDC` (not `__STDC__`), and
+    // 1.3.2 uses `NULL` directly in compress.c/uncompr.c.
+    cfg.define("STDC", None);
+
     if !target.contains("windows") {
-        cfg.define("STDC", None);
         cfg.define("_LARGEFILE64_SOURCE", None);
         cfg.define("_POSIX_SOURCE", None);
         cfg.flag("-fvisibility=hidden");
