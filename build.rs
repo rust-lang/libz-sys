@@ -135,14 +135,7 @@ fn build_zlib(cfg: &mut cc::Build, target: &str) {
 
     if !target.contains("windows") {
         cfg.define("_LARGEFILE64_SOURCE", None);
-        cfg.define("_POSIX_SOURCE", None);
         cfg.flag("-fvisibility=hidden");
-    }
-    if target.contains("apple") {
-        cfg.define("_C99_SOURCE", None);
-    }
-    if target.contains("solaris") {
-        cfg.define("_XOPEN_SOURCE", "700");
     }
 
     cfg.compile("z");
