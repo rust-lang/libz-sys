@@ -97,7 +97,6 @@ jobs:
       - run: |
           cargo test --no-default-features --features zlib-ng-no-cmake-experimental-community-maintained || echo "::warning::failed to build libz-ng with --features zlib-ng-no-cmake-experimental-community-maintained"
           cargo run --manifest-path systest/Cargo.toml --no-default-features --features zlib-ng-no-cmake-experimental-community-maintained || echo "::warning::failed to run systest with --features zlib-ng-no-cmake-experimental-community-maintained"
-          
 
   # ensures packaging works
   package:
@@ -106,10 +105,13 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           submodules: true
-      - run: |
+      - name: test bare packaging
+        run: |
           cargo package --all-features
           cargo package --no-default-features --features zlib-ng-no-cmake-experimental-community-maintained
           cargo package --no-default-features --features zlib-ng
+      - name: test packaging with release tool
+        run: cargo run -p maint -- publish
 
   linux:
     runs-on: ubuntu-latest
@@ -157,7 +159,6 @@ jobs:
       - run: cargo build
       - run: cargo build --features zlib-ng --no-default-features
       - run: cargo build --no-default-features --features zlib-ng-no-cmake-experimental-community-maintained || echo "::warning::failed to build libz-ng with --features zlib-ng-no-cmake-experimental-community-maintained"
-
 
     strategy:
       fail-fast: false

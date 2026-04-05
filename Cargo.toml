@@ -1,6 +1,6 @@
 [package]
 name = "libz-sys"
-version = "1.1.27"
+version = "1.1.28"
 authors = [
     "Alex Crichton <alex@alexcrichton.com>",
     "Josh Triplett <josh@joshtriplett.org>",
@@ -45,7 +45,7 @@ include = [
 ]
 
 [workspace]
-members = ["systest"]
+members = ["maint", "systest"]
 
 [dependencies]
 # When this feature is disabled, zlib will be built in Z_SOLO mode which

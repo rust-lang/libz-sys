@@ -1,6 +1,8 @@
 use std::env;
 
 fn main() {
+    println!("cargo:rustc-check-cfg=cfg(zng)");
+
     let zng = env::var("CARGO_PKG_NAME").unwrap() == "systest-zng";
     let mut cfg = ctest2::TestGenerator::new();
     cfg.define("WITH_GZFILEOP", Some("ON"));
@@ -44,12 +46,8 @@ fn main() {
             } else if n == "z_off_t" {
                 return "z_off64_t".to_string();
             }
-        } else {
-            if n == "z_size" {
-                return "unsigned long".to_string();
-            } else if n == "z_checksum" {
-                return "unsigned long".to_string();
-            }
+        } else if n == "z_size" || n == "z_checksum" {
+            return "unsigned long".to_string();
         }
         if n == "internal_state" {
             format!("struct {}", n)
@@ -57,11 +55,9 @@ fn main() {
             n.to_string()
         }
     });
-    cfg.skip_signededness(|ty| match ty {
+    cfg.skip_signededness(|ty| matches!(ty,
         "gz_headerp" | "voidpf" | "voidcf" | "voidp" | "out_func" | "voidpc" | "gzFile"
-        | "in_func" | "free_func" | "alloc_func" | "z_streamp" => true,
-        _ => false,
-    });
+        | "in_func" | "free_func" | "alloc_func" | "z_streamp"));
     cfg.skip_field_type(|s, field| s == "z_stream" && (field == "next_in" || field == "msg"));
     cfg.generate("../src/lib.rs", "all.rs");
 }

@@ -1,6 +1,6 @@
 [package]
 name = "libz-ng-sys"
-version = "1.1.27"
+version = "1.1.28"
 authors = [
     "Alex Crichton <alex@alexcrichton.com>",
     "Josh Triplett <josh@joshtriplett.org>",
@@ -17,10 +17,12 @@ edition = "2018"
 exclude = [
     "/.github",
     "/.gitmodules",
+    "/MAINTENANCE.md",
     "/README.md",
     "/build.rs",
     "/cargo-zng",
     "/ci",
+    "/maint",
     "/src/smoke.c",
     "/src/zlib",
     "/systest",
@@ -39,4 +41,4 @@ libc = "0.2.43"
 cmake = "0.1.50"
 
 [lints.rust]
-unexpected_cfgs = { level = "warn", check-cfg = ['cfg(zng)'] }
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(zng)', 'cfg(feature, values("libc"))'] }
