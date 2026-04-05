@@ -144,7 +144,11 @@ fn run_cargo_publish(args: impl IntoIterator<Item = OsString>) -> Result<()> {
         "  1. Run `git tag -s {} -m \"{} {}\"`.",
         root_manifest.version, root_manifest.name, root_manifest.version
     );
-    println!("  2. Run `git push --tags origin`.");
+    println!(
+        "  2. Run `git tag -s {}-zng -m \"{} {}\"`.",
+        zng_manifest.version, zng_manifest.name, zng_manifest.version
+    );
+    println!("  2. Run `git push origin HEAD --tags`.");
     Ok(())
 }
 
