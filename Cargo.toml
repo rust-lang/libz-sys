@@ -45,7 +45,7 @@ include = [
 ]
 
 [workspace]
-members = ["systest"]
+members = ["maint", "systest"]
 
 [dependencies]
 # When this feature is disabled, zlib will be built in Z_SOLO mode which

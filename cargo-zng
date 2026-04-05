@@ -1,14 +1,3 @@
 #!/bin/bash
-set -eu
-tempdir="$(mktemp -d)"
-trap 'rm -rf "$tempdir"' 0 INT
-cargo package -l --allow-dirty |
-    tr '\\' '/' |
-    grep -vxF -e Cargo.toml.orig -e .cargo_vcs_info.json -e Cargo.lock |
-    tar --files-from=- -cf - |
-    tar -C "$tempdir" -xf -
-cp Cargo-zng.toml "$tempdir/Cargo.toml"
-cp -a systest "$tempdir/systest"
-mv "$tempdir/systest/Cargo-zng.toml" "$tempdir/systest/Cargo.toml"
-cd "$tempdir"
-cargo "$@"
+set -euo pipefail
+exec cargo run --quiet -p maint -- zng "$@"

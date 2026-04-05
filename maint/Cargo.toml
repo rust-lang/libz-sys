@@ -1,0 +1,10 @@
+[package]
+name = "maint"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+anyhow = "1.0.100"
+tempfile = "3.23.0"
+toml = "0.9.7"

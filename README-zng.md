@@ -28,9 +28,13 @@ implementations.
 This crate is built from [the same sources as
 `libz-sys`](https://github.com/rust-lang/libz-sys). From within those sources,
 `Cargo.toml` is the manifest for `libz-sys`, and `Cargo-zng.toml` is the
-manifest for `libz-ng-sys`. The script `./cargo-zng` invokes Cargo on a
-temporary copy of the sources with `Cargo-zng.toml` replacing `Cargo.toml`; for
-instance, use `./cargo-zng publish` to publish `libz-ng-sys`.
+manifest for `libz-ng-sys`. Use `cargo run -p maint -- zng <cargo-args>` to
+run Cargo against a temporary `libz-ng-sys` staging tree. The `./cargo-zng`
+script remains as a compatibility wrapper around that command.
+
+Use `cargo run -p maint -- publish` to verify the release in dry-run mode, and
+`cargo run -p maint -- publish --execute` to publish both crates. See
+[`MAINTENANCE.md`](MAINTENANCE.md) for the full release process.
 
 # Minimum Supported Rust Version (MSRV) Policy
 

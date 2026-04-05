@@ -17,10 +17,12 @@ edition = "2018"
 exclude = [
     "/.github",
     "/.gitmodules",
+    "/MAINTENANCE.md",
     "/README.md",
     "/build.rs",
     "/cargo-zng",
     "/ci",
+    "/maint",
     "/src/smoke.c",
     "/src/zlib",
     "/systest",
