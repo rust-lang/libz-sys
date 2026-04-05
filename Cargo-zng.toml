@@ -41,4 +41,4 @@ libc = "0.2.43"
 cmake = "0.1.50"
 
 [lints.rust]
-unexpected_cfgs = { level = "warn", check-cfg = ['cfg(zng)'] }
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(zng)', 'cfg(feature, values("libc"))'] }

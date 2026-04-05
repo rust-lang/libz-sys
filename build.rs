@@ -35,10 +35,11 @@ fn main() {
     // also don't run pkg-config on FreeBSD/DragonFly. That'll end up printing
     // `-L /usr/lib` which wreaks havoc with linking to an OpenSSL in /usr/local/lib
     // (Ports, etc.)
-    if !want_static &&
-       !target.contains("msvc") && // pkg-config just never works here
-       !(host_and_target_contain("freebsd") ||
-         host_and_target_contain("dragonfly"))
+    if !(want_static
+        // pkg-config just never works here
+        || target.contains("msvc")
+        || host_and_target_contain("freebsd")
+        || host_and_target_contain("dragonfly"))
     {
         // Don't print system lib dirs to cargo since this interferes with other
         // packages adding non-system search paths to link against libraries
@@ -59,15 +60,16 @@ fn main() {
                 }
             }
             Err(e) => {
-                println!("cargo:warning=Could not find zlib include paths via pkg-config: {}", e)
+                println!(
+                    "cargo:warning=Could not find zlib include paths via pkg-config: {}",
+                    e
+                )
             }
         }
     }
 
-    if target.contains("windows") {
-        if try_vcpkg() {
-            return;
-        }
+    if target.contains("windows") && try_vcpkg() {
+        return;
     }
 
     let mut cfg = cc::Build::new();
@@ -77,10 +79,7 @@ fn main() {
     // - MSVC basically never has zlib preinstalled
     // - MinGW picks up a bunch of weird paths we don't like
     // - Explicit opt-in via `want_static`
-    if target.contains("msvc")
-        || target.contains("pc-windows-gnu")
-        || want_static
-    {
+    if target.contains("msvc") || target.contains("pc-windows-gnu") || want_static {
         return build_zlib(&mut cfg, &target);
     }
 
@@ -117,7 +116,7 @@ fn build_zlib(cfg: &mut cc::Build, target: &str) {
         .file("src/zlib/uncompr.c")
         .file("src/zlib/zutil.c");
 
-    if !cfg!(feature = "libc") || target.starts_with("wasm32") {
+    if target.starts_with("wasm32") {
         cfg.define("Z_SOLO", None);
         // zlib 1.3.2 uses `NULL` directly in compress.c/uncompr.c, but the
         // Z_SOLO config path doesn't pull in headers that always define it.
@@ -243,15 +242,15 @@ fn zlib_installed(cfg: &mut cc::Build) -> bool {
 /// this enables the build environment to revert that preference via `LIBZ_SYS_STATIC=0`.
 /// The default is otherwise `false`.
 fn should_link_static() -> bool {
-  let has_static_env: Option<&'static str> = option_env!("LIBZ_SYS_STATIC");
-  let has_static_cfg = cfg!(feature = "static");
+    let has_static_env: Option<&'static str> = option_env!("LIBZ_SYS_STATIC");
+    let has_static_cfg = cfg!(feature = "static");
 
-  has_static_env
-    .and_then(|s: &str| s.parse::<u8>().ok())
-    .and_then(|b| match b {
-      0 => Some(false),
-      1 => Some(true),
-      _ => None,
-    })
-    .unwrap_or(has_static_cfg)
+    has_static_env
+        .and_then(|s: &str| s.parse::<u8>().ok())
+        .and_then(|b| match b {
+            0 => Some(false),
+            1 => Some(true),
+            _ => None,
+        })
+        .unwrap_or(has_static_cfg)
 }
