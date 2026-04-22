@@ -30,6 +30,19 @@ fn main() {
         return;
     }
 
+    // On AIX, use zlibNX if available.
+    if target.contains("aix") {
+        let zlibNX_lib = "/usr/opt/zlibNX/lib";
+        let zlibNX_include = "/usr/opt/zlibNX/include";
+        if std::path::Path::new(zlibNX_lib).join("libz.a").exists() &&
+           std::path::Path::new(zlibNX_include).join("zlib.h").exists() {
+            println!("cargo:rustc-link-search=native={}", zlibNX_lib);
+            println!("cargo:rustc-link-lib=z");
+            println!("cargo:include={}", zlibNX_include);
+            return;
+        }
+    }
+
     let want_static = should_link_static();
     // Don't run pkg-config if we're linking statically (we'll build below) and
     // also don't run pkg-config on FreeBSD/DragonFly. That'll end up printing
