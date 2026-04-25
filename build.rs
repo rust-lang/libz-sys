@@ -83,6 +83,24 @@ fn main() {
         return build_zlib(&mut cfg, &target);
     }
 
+    // On AIX, prefer zlibNX if available and linkable.
+    if target.contains("aix") {
+        let zlibnx_lib = "/usr/opt/zlibNX/lib";
+        let zlibnx_include = "/usr/opt/zlibNX/include";
+        if std::path::Path::new(zlibnx_lib).join("libz.a").exists()
+            && std::path::Path::new(zlibnx_include).join("zlib.h").exists()
+        {
+            if zlibnx_installed(&mut cfg, zlibnx_lib, zlibnx_include) {
+                println!("cargo:rustc-link-search=native={}", zlibnx_lib);
+                println!("cargo:rustc-link-lib=z");
+                println!("cargo:include={}", zlibnx_include);
+                return;
+            } else {
+                println!("cargo:warning=zlibNX found at {} but not linkable, falling back to bundled zlib", zlibnx_lib);
+            }
+        }
+    }
+
     // If we've gotten this far we're probably a pretty standard platform.
     // Almost all platforms here ship libz by default, but some don't have
     // pkg-config files that we would find above.
@@ -234,6 +252,31 @@ fn zlib_installed(cfg: &mut cc::Build) -> bool {
     }
 
     false
+}
+
+fn zlibnx_installed(cfg: &mut cc::Build, lib_dir: &str, include_dir: &str) -> bool {
+    let out_dir = PathBuf::from(env::var_os("OUT_DIR").unwrap());
+    let test_file = out_dir.join("smoke_test_zlibnx");
+    let mut cmd = cfg.get_compiler().to_command();
+    cmd.arg("src/smoke.c")
+        .arg("-g0")
+        .arg("-o")
+        .arg(&test_file)
+        .arg(format!("-L{}", lib_dir))
+        .arg(format!("-I{}", include_dir))
+        .arg("-lz");
+
+    println!("running {:?}", cmd);
+    let result = if let Ok(status) = cmd.status() {
+        status.success()
+    } else {
+        false
+    };
+
+    // Clean up test file.
+    let _ = fs::remove_file(&test_file);
+
+    result
 }
 
 /// The environment variable `LIBZ_SYS_STATIC` is first checked for a value of `0` (false) or `1` (true),
