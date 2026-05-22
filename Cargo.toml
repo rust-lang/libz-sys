@@ -29,6 +29,7 @@ include = [
     "src/zlib-ng/**.[ch]",
     "src/zlib-ng/arch/arm/**.[ch]",
     "src/zlib-ng/arch/generic/**.[ch]",
+    "src/zlib-ng/arch/loongarch/**.[ch]",
     "src/zlib-ng/arch/power/**.[ch]",
     "src/zlib-ng/arch/riscv/**.[ch]",
     "src/zlib-ng/arch/s390/**.[ch]",
