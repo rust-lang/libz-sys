@@ -26,7 +26,7 @@ jobs:
         platform: [linux-musl]
 
   windows:
-    runs-on: windows-latest
+    runs-on: ${{ matrix.runner || 'windows-latest' }}
     # Windows technically doesn't need this, but if we don't block windows on it
     # some of the windows jobs could fill up the concurrent job queue before
     # one of the install-cross jobs has started, so this makes sure all
@@ -55,11 +55,14 @@ jobs:
           - x86_64-pc-windows-gnu
           - i686-pc-windows-msvc
           - i686-pc-windows-gnu
+          - aarch64-pc-windows-msvc
         include:
           - target: x86_64-pc-windows-gnu
             mingw_package: mingw-w64-x86_64-gcc
           - target: i686-pc-windows-gnu
             mingw_package: mingw-w64-i686-gcc
+          - target: aarch64-pc-windows-msvc
+            runner: windows-11-arm
 
   macos:
     runs-on: macos-latest
