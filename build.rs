@@ -137,6 +137,17 @@ fn build_zlib(cfg: &mut cc::Build, target: &str) {
         cfg.flag("-fvisibility=hidden");
     }
 
+    // Forward target features to the C compiler.
+    let arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
+    let features = env::var("CARGO_CFG_TARGET_FEATURE").unwrap_or_default();
+    let target_features: std::collections::HashSet<&str> = features.split(',').collect();
+
+    // Using the crc32x instruction gives a 10X speedup on crc32.
+    if arch == "aarch64" && target_features.contains("crc") {
+        // NOTE: the msvc C compiler does not support this flag.
+        cfg.flag_if_supported("-march=armv8-a+crc");
+    }
+
     cfg.compile("z");
 
     fs::create_dir_all(dst.join("include")).unwrap();

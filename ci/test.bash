@@ -32,6 +32,11 @@ fi
 $CROSS test --target $TARGET_TRIPLE
 $CROSS run --target $TARGET_TRIPLE --manifest-path systest/Cargo.toml
 
+echo '::group::=== static build ==='
+$CROSS test --target $TARGET_TRIPLE --features static
+$CROSS run --target $TARGET_TRIPLE --manifest-path systest/Cargo.toml --features libz-static
+echo '::endgroup::'
+
 echo '::group::=== zlib-ng build ==='
 $CROSS test --target $TARGET_TRIPLE --no-default-features --features zlib-ng
 $CROSS run --target $TARGET_TRIPLE --manifest-path systest/Cargo.toml --no-default-features --features zlib-ng

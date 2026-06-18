@@ -55,9 +55,26 @@ fn main() {
             n.to_string()
         }
     });
-    cfg.skip_signededness(|ty| matches!(ty,
-        "gz_headerp" | "voidpf" | "voidcf" | "voidp" | "out_func" | "voidpc" | "gzFile"
-        | "in_func" | "free_func" | "alloc_func" | "z_streamp"));
+    cfg.skip_signededness(|ty| {
+        matches!(
+            ty,
+            "gz_headerp"
+                | "voidpf"
+                | "voidcf"
+                | "voidp"
+                | "out_func"
+                | "voidpc"
+                | "gzFile"
+                | "in_func"
+                | "free_func"
+                | "alloc_func"
+                | "z_streamp"
+        )
+    });
     cfg.skip_field_type(|s, field| s == "z_stream" && (field == "next_in" || field == "msg"));
+    if let Ok("msvc") = env::var("CARGO_CFG_TARGET_ENV").as_deref() {
+        // Suppress C4746: ctest2 generates volatile accesses that MSVC errors on.
+        cfg.flag("/wd4746");
+    }
     cfg.generate("../src/lib.rs", "all.rs");
 }
