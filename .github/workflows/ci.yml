@@ -25,6 +25,23 @@ jobs:
       matrix:
         platform: [linux-musl]
 
+  wasm:
+    runs-on: ubuntu-latest
+    env:
+      CC_wasm32_wasip1: /tmp/wasi-sdk-33.0-x86_64-linux/bin/clang
+      AR_wasm32_wasip1: /tmp/wasi-sdk-33.0-x86_64-linux/bin/llvm-ar
+      CARGO_TARGET_WASM32_WASIP1_RUNNER: wasmtime
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          submodules: true
+      - uses: bytecodealliance/actions/wasmtime/setup@9152e710e9f7182e4c29ad218e4f335a7b203613 # v1
+        with:
+          version: 46.0.1
+      - run: rustup target add wasm32-wasip1
+      - run: curl -fsSL https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-33/wasi-sdk-33.0-x86_64-linux.tar.gz | tar xz -C /tmp
+      - run: cargo test --target wasm32-wasip1 --test wasm
+
   windows:
     runs-on: ${{ matrix.runner || 'windows-latest' }}
     # Windows technically doesn't need this, but if we don't block windows on it
