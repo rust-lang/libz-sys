@@ -116,7 +116,13 @@ fn build_zlib(cfg: &mut cc::Build, target: &str) {
         .file("src/zlib/uncompr.c")
         .file("src/zlib/zutil.c");
 
-    if target.starts_with("wasm32") {
+    // Z_SOLO is zlib's "no C library at all" mode: it removes the default
+    // zalloc/zfree (so the one-shot compress()/uncompress() helpers return
+    // Z_STREAM_ERROR unless the caller wires up allocators by hand) and the
+    // gz* file API. Of the wasm32 targets only wasm32-unknown-unknown has no
+    // libc; the wasi targets (wasi-libc) and emscripten ship a complete C
+    // library, so they get the standard build.
+    if target == "wasm32-unknown-unknown" {
         cfg.define("Z_SOLO", None);
         // zlib 1.3.2 uses `NULL` directly in compress.c/uncompr.c, but the
         // Z_SOLO config path doesn't pull in headers that always define it.
