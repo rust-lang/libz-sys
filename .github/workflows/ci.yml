@@ -25,6 +25,63 @@ jobs:
       matrix:
         platform: [linux-musl]
 
+  wasm-no-libc:
+    runs-on: ubuntu-latest
+    env:
+      CRATE_CC_NO_DEFAULTS: 1
+      CC_wasm32_unknown_unknown: /tmp/wasi-sdk-33.0-x86_64-linux/bin/clang --target=wasm32-unknown-unknown
+      AR_wasm32_unknown_unknown: /tmp/wasi-sdk-33.0-x86_64-linux/bin/llvm-ar
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          submodules: true
+      - run: rustup target add wasm32-unknown-unknown
+      - run: curl -fsSL https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-33/wasi-sdk-33.0-x86_64-linux.tar.gz | tar xz -C /tmp
+      - run: cargo build --target wasm32-unknown-unknown --no-default-features --features stock-zlib
+      - run: |
+          archive=$(find target/wasm32-unknown-unknown/debug/build -path '*/out/lib/libz.a' -print -quit)
+          test -n "$archive"
+          ! /tmp/wasi-sdk-33.0-x86_64-linux/bin/llvm-nm -u "$archive" | grep -Eq ' U (malloc|free)$'
+
+  wasm-wasi:
+    runs-on: ubuntu-latest
+    env:
+      CC_wasm32_wasip1: /tmp/wasi-sdk-33.0-x86_64-linux/bin/clang
+      AR_wasm32_wasip1: /tmp/wasi-sdk-33.0-x86_64-linux/bin/llvm-ar
+      CARGO_TARGET_WASM32_WASIP1_RUNNER: wasmtime
+      CC_wasm32_wasip1_threads: /tmp/wasi-sdk-33.0-x86_64-linux/bin/clang
+      AR_wasm32_wasip1_threads: /tmp/wasi-sdk-33.0-x86_64-linux/bin/llvm-ar
+      CC_wasm32_wasip2: /tmp/wasi-sdk-33.0-x86_64-linux/bin/clang
+      AR_wasm32_wasip2: /tmp/wasi-sdk-33.0-x86_64-linux/bin/llvm-ar
+      CARGO_TARGET_WASM32_WASIP2_RUNNER: wasmtime
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          submodules: true
+      - uses: bytecodealliance/actions/wasmtime/setup@9152e710e9f7182e4c29ad218e4f335a7b203613 # v1
+        with:
+          version: 46.0.1
+      - run: rustup target add wasm32-wasip1 wasm32-wasip1-threads wasm32-wasip2
+      - run: curl -fsSL https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-33/wasi-sdk-33.0-x86_64-linux.tar.gz | tar xz -C /tmp
+      - run: cargo test --target wasm32-wasip1 --test wasm
+      - run: cargo test --target wasm32-wasip2 --test wasm
+      # The threads ABI imports shared memory, which needs a custom host.
+      - run: cargo test --target wasm32-wasip1-threads --test wasm --no-run
+
+  wasm-emscripten:
+    runs-on: ubuntu-latest
+    env:
+      CARGO_TARGET_WASM32_UNKNOWN_EMSCRIPTEN_RUNNER: node
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          submodules: true
+      - uses: emscripten-core/setup-emsdk@4528d102f7230f0e7b276855c01ea1159be0e984 # v16
+        with:
+          version: 6.0.4
+      - run: rustup target add wasm32-unknown-emscripten
+      - run: cargo test --target wasm32-unknown-emscripten --test wasm --features static
+
   windows:
     runs-on: ${{ matrix.runner || 'windows-latest' }}
     # Windows technically doesn't need this, but if we don't block windows on it
