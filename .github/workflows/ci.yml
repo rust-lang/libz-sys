@@ -68,6 +68,20 @@ jobs:
       # The threads ABI imports shared memory, which needs a custom host.
       - run: cargo test --target wasm32-wasip1-threads --test wasm --no-run
 
+  wasm-emscripten:
+    runs-on: ubuntu-latest
+    env:
+      CARGO_TARGET_WASM32_UNKNOWN_EMSCRIPTEN_RUNNER: node
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          submodules: true
+      - uses: emscripten-core/setup-emsdk@4528d102f7230f0e7b276855c01ea1159be0e984 # v16
+        with:
+          version: 6.0.4
+      - run: rustup target add wasm32-unknown-emscripten
+      - run: cargo test --target wasm32-unknown-emscripten --test wasm --features static
+
   windows:
     runs-on: ${{ matrix.runner || 'windows-latest' }}
     # Windows technically doesn't need this, but if we don't block windows on it

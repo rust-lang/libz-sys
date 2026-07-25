@@ -1,4 +1,4 @@
-#![cfg(target_os = "wasi")]
+#![cfg(any(target_os = "wasi", target_os = "emscripten"))]
 
 #[test]
 fn compress_roundtrip() {
