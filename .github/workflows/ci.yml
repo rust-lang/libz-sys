@@ -25,6 +25,24 @@ jobs:
       matrix:
         platform: [linux-musl]
 
+  wasm-no-libc:
+    runs-on: ubuntu-latest
+    env:
+      CRATE_CC_NO_DEFAULTS: 1
+      CC_wasm32_unknown_unknown: /tmp/wasi-sdk-33.0-x86_64-linux/bin/clang --target=wasm32-unknown-unknown
+      AR_wasm32_unknown_unknown: /tmp/wasi-sdk-33.0-x86_64-linux/bin/llvm-ar
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          submodules: true
+      - run: rustup target add wasm32-unknown-unknown
+      - run: curl -fsSL https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-33/wasi-sdk-33.0-x86_64-linux.tar.gz | tar xz -C /tmp
+      - run: cargo build --target wasm32-unknown-unknown --no-default-features --features stock-zlib
+      - run: |
+          archive=$(find target/wasm32-unknown-unknown/debug/build -path '*/out/lib/libz.a' -print -quit)
+          test -n "$archive"
+          ! /tmp/wasi-sdk-33.0-x86_64-linux/bin/llvm-nm -u "$archive" | grep -Eq ' U (malloc|free)$'
+
   wasm:
     runs-on: ubuntu-latest
     env:
