@@ -32,7 +32,7 @@ jobs:
       CC_wasm32_unknown_unknown: /tmp/wasi-sdk-33.0-x86_64-linux/bin/clang --target=wasm32-unknown-unknown
       AR_wasm32_unknown_unknown: /tmp/wasi-sdk-33.0-x86_64-linux/bin/llvm-ar
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
       - run: rustup target add wasm32-unknown-unknown
@@ -55,7 +55,7 @@ jobs:
       AR_wasm32_wasip2: /tmp/wasi-sdk-33.0-x86_64-linux/bin/llvm-ar
       CARGO_TARGET_WASM32_WASIP2_RUNNER: wasmtime
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
       - uses: bytecodealliance/actions/wasmtime/setup@9152e710e9f7182e4c29ad218e4f335a7b203613 # v1
@@ -73,7 +73,7 @@ jobs:
     env:
       CARGO_TARGET_WASM32_UNKNOWN_EMSCRIPTEN_RUNNER: node
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
       - uses: emscripten-core/setup-emsdk@4528d102f7230f0e7b276855c01ea1159be0e984 # v16
@@ -90,7 +90,7 @@ jobs:
     # artifacts are downloaded first.
     needs: install-cross
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
       - if: matrix.mingw_package
@@ -126,7 +126,7 @@ jobs:
     # macOS isn't currently using this either, but see the note about Windows above.
     needs: install-cross
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
       - run: ci/set_rust_version.bash ${{ matrix.channel }} ${{ matrix.target }}
@@ -142,7 +142,7 @@ jobs:
   cc:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
       # Ensures --all-features builds correctly, the current logic will mean it
@@ -162,7 +162,7 @@ jobs:
   package:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
       - name: test bare packaging
@@ -177,7 +177,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: install-cross
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
 
@@ -208,7 +208,7 @@ jobs:
   minimal-versions:
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
 
