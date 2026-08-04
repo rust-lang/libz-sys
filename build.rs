@@ -3,25 +3,28 @@
 //! This script selects and links one zlib implementation. Its decisions are made in the
 //! following order:
 //!
-//! 1. The `zlib-ng` or `zlib-ng-no-cmake-experimental-community-maintained` feature builds
+//! 1. `LIBZ_SYS_STATIC=0` selects the system libz. This hard override skips implementation
+//!    features, compiler probing, and bundled builds, while allowing pkg-config or vcpkg to emit
+//!    available link and include metadata. The caller must ultimately provide a linkable libz.
+//! 2. The `zlib-ng` or `zlib-ng-no-cmake-experimental-community-maintained` feature builds
 //!    zlib-ng in compatibility mode, unless `stock-zlib` is also enabled or the target is
 //!    `wasm32-unknown-unknown`. The former uses CMake and the latter uses `cc`.
-//! 2. Android, Haiku, and OpenHarmony targets link `z` directly.
-//! 3. `LIBZ_SYS_STATIC=0` disables the `static` feature, while `LIBZ_SYS_STATIC=1` enables
-//!    bundled stock zlib. Any other value falls back to the feature setting.
-//! 4. Unless static linking was requested, the target is MSVC, or both host and target are
+//! 3. Android, Haiku, and OpenHarmony targets link `z` directly.
+//! 4. `LIBZ_SYS_STATIC=1` requests bundled stock zlib. Any other value falls back to the
+//!    `static` feature setting.
+//! 5. Unless static linking was requested, the target is MSVC, or both host and target are
 //!    FreeBSD or DragonFly, `pkg-config` probes `zlib`. It emits Cargo link metadata and this
 //!    script forwards non-empty include paths, but system library directories are omitted.
 //!    Probe failure is only a warning.
-//! 5. Windows targets try vcpkg. A successful lookup emits its link metadata and include paths
+//! 6. Windows targets try vcpkg. A successful lookup emits its link metadata and include paths
 //!    and completes the script.
-//! 6. MSVC, MinGW, and explicit static builds compile the bundled stock zlib. Other targets
-//!    first compile and link `src/smoke.c` with `-lz`; success links `z` directly and failure
-//!    falls back to the bundled source.
+//! 7. MSVC, MinGW, and explicit static builds compile the bundled stock zlib unless the system
+//!    override is active. The override links `z` directly; remaining targets first compile and
+//!    link `src/smoke.c` with `-lz`, then link `z` on success or bundle it on failure.
 //!
-//! `LIBZ_SYS_STATIC` and the `static` feature are preferences rather than guarantees because
-//! the earlier implementation and platform branches take precedence. Changing
-//! `LIBZ_SYS_STATIC` reruns the script.
+//! Except for the `0` hard override, `LIBZ_SYS_STATIC` and the `static` feature are preferences
+//! rather than guarantees because the earlier implementation and platform branches take
+//! precedence. Changing `LIBZ_SYS_STATIC` reruns the script.
 //!
 //! ## Bundled stock zlib
 //!
@@ -49,6 +52,15 @@ fn main() {
     let host = env::var("HOST").unwrap();
     let target = env::var("TARGET").unwrap();
 
+    let link_static = option_env!("LIBZ_SYS_STATIC")
+        .and_then(|s| s.parse::<u8>().ok())
+        .and_then(|b| match b {
+            0 => Some(false),
+            1 => Some(true),
+            _ => None,
+        });
+    let force_system = link_static == Some(false);
+
     let host_and_target_contain = |s| host.contains(s) && target.contains(s);
 
     let want_ng = cfg!(any(
@@ -56,7 +68,7 @@ fn main() {
         feature = "zlib-ng-no-cmake-experimental-community-maintained"
     )) && !cfg!(feature = "stock-zlib");
 
-    if want_ng && target != "wasm32-unknown-unknown" {
+    if want_ng && !force_system && target != "wasm32-unknown-unknown" {
         return build_zlib_ng(&target, true);
     }
 
@@ -68,7 +80,7 @@ fn main() {
         return;
     }
 
-    let want_static = should_link_static();
+    let want_static = link_static.unwrap_or(cfg!(feature = "static"));
     // Don't run pkg-config if we're linking statically (we'll build below) and
     // also don't run pkg-config on FreeBSD/DragonFly. That'll end up printing
     // `-L /usr/lib` which wreaks havoc with linking to an OpenSSL in /usr/local/lib
@@ -117,7 +129,11 @@ fn main() {
     // - MSVC basically never has zlib preinstalled
     // - MinGW picks up a bunch of weird paths we don't like
     // - Explicit opt-in via `want_static`
-    if target.contains("msvc") || target.contains("pc-windows-gnu") || want_static {
+    //
+    // An explicit system override takes precedence over all three.
+    if !force_system
+        && (target.contains("msvc") || target.contains("pc-windows-gnu") || want_static)
+    {
         return build_zlib(&mut cfg, &target);
     }
 
@@ -125,9 +141,9 @@ fn main() {
     // Almost all platforms here ship libz by default, but some don't have
     // pkg-config files that we would find above.
     //
-    // In any case test if zlib is actually installed and if so we link to it,
-    // otherwise continue below to build things.
-    if zlib_installed(&mut cfg) {
+    // In any case link an explicitly requested system zlib, or test if zlib is
+    // installed and link to it, otherwise continue below to build things.
+    if force_system || zlib_installed(&mut cfg) {
         println!("cargo:rustc-link-lib=z");
         return;
     }
@@ -289,23 +305,4 @@ fn zlib_installed(cfg: &mut cc::Build) -> bool {
     }
 
     false
-}
-
-/// The environment variable `LIBZ_SYS_STATIC` is first checked for a value of `0` (false) or `1` (true),
-/// before considering the `static` feature when no explicit ENV value was detected.
-/// When `libz-sys` is a transitive dependency from a crate that forces static linking via the `static` feature,
-/// this enables the build environment to revert that preference via `LIBZ_SYS_STATIC=0`.
-/// The default is otherwise `false`.
-fn should_link_static() -> bool {
-    let has_static_env: Option<&'static str> = option_env!("LIBZ_SYS_STATIC");
-    let has_static_cfg = cfg!(feature = "static");
-
-    has_static_env
-        .and_then(|s: &str| s.parse::<u8>().ok())
-        .and_then(|b| match b {
-            0 => Some(false),
-            1 => Some(true),
-            _ => None,
-        })
-        .unwrap_or(has_static_cfg)
 }
