@@ -1,3 +1,41 @@
+//! # Build behavior
+//!
+//! This script selects and links one zlib implementation. Its decisions are made in the
+//! following order:
+//!
+//! 1. The `zlib-ng` or `zlib-ng-no-cmake-experimental-community-maintained` feature builds
+//!    zlib-ng in compatibility mode, unless `stock-zlib` is also enabled or the target is
+//!    `wasm32-unknown-unknown`. The former uses CMake and the latter uses `cc`.
+//! 2. Android, Haiku, and OpenHarmony targets link `z` directly.
+//! 3. `LIBZ_SYS_STATIC=0` disables the `static` feature, while `LIBZ_SYS_STATIC=1` enables
+//!    bundled stock zlib. Any other value falls back to the feature setting.
+//! 4. Unless static linking was requested, the target is MSVC, or both host and target are
+//!    FreeBSD or DragonFly, `pkg-config` probes `zlib`. It emits Cargo link metadata and this
+//!    script forwards non-empty include paths, but system library directories are omitted.
+//!    Probe failure is only a warning.
+//! 5. Windows targets try vcpkg. A successful lookup emits its link metadata and include paths
+//!    and completes the script.
+//! 6. MSVC, MinGW, and explicit static builds compile the bundled stock zlib. Other targets
+//!    first compile and link `src/smoke.c` with `-lz`; success links `z` directly and failure
+//!    falls back to the bundled source.
+//!
+//! `LIBZ_SYS_STATIC` and the `static` feature are preferences rather than guarantees because
+//! the earlier implementation and platform branches take precedence. Changing
+//! `LIBZ_SYS_STATIC` reruns the script.
+//!
+//! ## Bundled stock zlib
+//!
+//! The bundled build disables warnings and compiles into `$OUT_DIR/lib`. It defines `STDC` on
+//! every target. Non-Windows targets also define `_LARGEFILE64_SOURCE` and use hidden symbol
+//! visibility. `wasm32-unknown-unknown` additionally defines `Z_SOLO` and omits the `gz*`
+//! sources; other targets include them. An AArch64 target with the `crc` target feature enables
+//! the compiler's Armv8 CRC support when available.
+//!
+//! After compilation, `zlib.h` and `zconf.h` are copied to `$OUT_DIR/include`, a `zlib.pc` file
+//! is generated in `$OUT_DIR/lib/pkgconfig`, and Cargo receives the root, native library search
+//! path, and include directory. Cargo also reruns this script when `build.rs`, `zng/cmake.rs`, or
+//! `zng/cc.rs` changes.
+
 use std::env;
 use std::fs;
 use std::path::PathBuf;
