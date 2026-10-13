@@ -94,7 +94,7 @@ jobs:
         with:
           submodules: true
       - if: matrix.mingw_package
-        uses: msys2/setup-msys2@7efe20baefed56359985e327d329042cde2434ff # v2
+        uses: msys2/setup-msys2@9b16bfb50292e3261ab4212c91c3d404ca2880ac # v2.17.0
         with:
           release: false
           install: ${{ matrix.mingw_package }}
