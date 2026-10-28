@@ -243,7 +243,6 @@ fn zlib_installed(cfg: &mut cc::Build) -> bool {
         .arg("/dev/null")
         .arg("-lz");
 
-    println!("running {:?}", cmd);
     if let Ok(status) = cmd.status() {
         if status.success() {
             return true;
