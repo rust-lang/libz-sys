@@ -145,6 +145,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
+      - name: test forced system libz
+        run: ci/test-force-system.bash
       # Ensures --all-features builds correctly, the current logic will mean it
       # uses stock zlib, not cmake nor cc
       - run: |
