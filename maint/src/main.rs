@@ -77,6 +77,9 @@ fn run_cargo_publish(args: impl IntoIterator<Item = OsString>) -> Result<()> {
             zng_manifest.version
         );
     }
+    if execute {
+        ensure_release_tag(&repo_root, &root_manifest.version)?;
+    }
 
     ensure_paths_exist(&repo_root, REQUIRED_WORKTREE_PATHS, "worktree")?;
     assert_package_contains(
@@ -139,16 +142,22 @@ fn run_cargo_publish(args: impl IntoIterator<Item = OsString>) -> Result<()> {
         "published {} and {} version {}",
         root_manifest.name, zng_manifest.name, root_manifest.version
     );
-    println!("next steps:");
-    println!(
-        "  1. Run `git tag -s {} -m \"{} {}\"`.",
-        root_manifest.version, root_manifest.name, root_manifest.version
-    );
-    println!(
-        "  2. Run `git tag -s {}-zng -m \"{} {}\"`.",
-        zng_manifest.version, zng_manifest.name, zng_manifest.version
-    );
-    println!("  2. Run `git push origin HEAD --tags`.");
+    Ok(())
+}
+
+fn ensure_release_tag(repo_root: &Path, version: &str) -> Result<()> {
+    let mut command = Command::new("git");
+    command
+        .current_dir(repo_root)
+        .args(["tag", "--points-at", "HEAD"]);
+    let tags = run_and_capture(&mut command)?;
+    let tags: Vec<_> = tags.lines().collect();
+    if !tags.contains(&version) {
+        bail!(
+            "release requires tag `{version}` on HEAD to match {ROOT_MANIFEST} and {ZNG_MANIFEST}; \
+             found tags: {tags:?}. Align both manifest versions and the release tag before publishing"
+        );
+    }
     Ok(())
 }
 
@@ -556,6 +565,52 @@ struct StagedZng {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn release_tag_must_match_version_on_head() {
+        let repo = tempfile::tempdir().unwrap();
+        let git = |args: &[&str]| {
+            run_command(
+                Command::new("git")
+                    .current_dir(repo.path())
+                    .args([
+                        "-c",
+                        "user.name=Maint tests",
+                        "-c",
+                        "user.email=maint@example.com",
+                        "-c",
+                        "commit.gpgsign=false",
+                        "-c",
+                        "tag.gpgsign=false",
+                    ])
+                    .args(args),
+            )
+            .unwrap();
+        };
+        git(&["init", "--quiet"]);
+        git(&["commit", "--allow-empty", "--quiet", "-m", "initial"]);
+
+        let error = ensure_release_tag(repo.path(), "1.2.3").unwrap_err();
+        assert!(
+            error
+                .to_string()
+                .contains("release requires tag `1.2.3` on HEAD")
+        );
+        git(&["tag", "1.2.4"]);
+        let error = ensure_release_tag(repo.path(), "1.2.3").unwrap_err();
+        assert!(error.to_string().contains("1.2.4"));
+
+        git(&["tag", "1.2.3"]);
+        ensure_release_tag(repo.path(), "1.2.3").unwrap();
+
+        git(&["commit", "--allow-empty", "--quiet", "-m", "next"]);
+        assert!(ensure_release_tag(repo.path(), "1.2.3").is_err());
+        git(&["tag", "1.2.3-zng"]);
+        assert!(ensure_release_tag(repo.path(), "1.2.3").is_err());
+
+        git(&["tag", "-a", "1.2.5", "-m", "release"]);
+        ensure_release_tag(repo.path(), "1.2.5").unwrap();
+    }
 
     #[test]
     fn publish_mode_appends_safe_flags() {

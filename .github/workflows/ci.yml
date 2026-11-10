@@ -165,6 +165,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
+      - name: test maintainer tool
+        run: cargo test -p maint
       - name: test bare packaging
         run: |
           cargo package --all-features

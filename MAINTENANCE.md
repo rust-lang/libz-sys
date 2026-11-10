@@ -22,20 +22,26 @@ The supported release entrypoint is the maintenance tool in `maint/`.
    `cargo publish --dry-run`, checks that both manifests have the same version,
    and rejects missing bundled source files or missing packaged source files.
 
-4. Perform the actual publish only after the dry-run passes:
+4. After the dry-run passes, tag the release commit with the exact version
+   from both manifests, such as `1.2.3`. The tag must point directly at `HEAD`;
+   a tag on an earlier commit or a legacy `1.2.3-zng` tag alone is not sufficient.
+   Lightweight and annotated tags are both supported.
+
+5. Push the release commit and its version tag to trigger the publish workflow.
+   To publish locally instead, run:
 
    ```bash
    cargo run -p maint -- publish --execute
    ```
 
-   The tool verifies first, then publishes `libz-sys` and `libz-ng-sys`.
-
-5. Create and push the Git tag after both publishes succeed. `maint` provides instructions.
+   The tool checks the release tag before packaging, verifies the builds, then
+   publishes `libz-sys` and `libz-ng-sys`.
 
 ## Safety Rules
 
 - `maint publish` defaults to dry-run mode. Real publishing requires
-  `--execute`.
+  `--execute` and a tag on `HEAD` matching the version in both manifests.
+  Dry-runs do not require a tag, so branch and pull request CI can verify packaging.
 - The tool never relies on a bare `cargo publish`. Verification always uses
   `cargo publish --dry-run`, and the upload step uses `cargo publish --no-verify`
   only after all dry-run checks succeed.
